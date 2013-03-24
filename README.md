@@ -19,8 +19,8 @@ Features
    * Automated binding of async interface
 * Sequential order of message execution
     * All the message sent to actor model is processed in sequential order. 
-    * Actor may process the message in async way. (e.g read/write from database)
-    * Prevent the race condition of high concurrent write/read of a resource
+    * Actor's method can work in sync / async way (e.g read/write from database) .
+    * Prevent the race condition of high concurrent write/read to a resource
     * Example usage: Judgement of game event sent from multiple players
 * Taking the advantage of node.js single thread design philosophy
     * The actor model is running on the main thread like other node.js code.
@@ -31,10 +31,10 @@ Hello World
 
 ```javascript
 
-var nactor = require("../");
+var nactor = require("nactor");
 
 var actor = nactor.actor({
-    // Declare your actor model by a object parameter
+    // Declare your actor model by using object parameter
     hello : function(message) {
         console.log(message);
         return "Done";
