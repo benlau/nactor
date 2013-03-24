@@ -1,0 +1,21 @@
+{
+  "name": "nactor",
+  "description": "Node.js actor model framework for game",
+  "version": "0.1",
+  "keywords": [
+    "actors"
+  ],
+  "maintainers": [
+    {
+      "name": "Ben Lau",
+      "email": "xbenlau@gmail.com",
+      "web": ""
+    }
+  ],
+  "licenses": [
+    {
+      "name": "BSD",
+      "url": ""
+    }
+  ]
+}
