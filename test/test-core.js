@@ -234,3 +234,22 @@ exports.uncaughtExceptionAndStop = function(test) {
     
     timeout(test);
 }
+
+exports.askWithNonObjectArgument = function(test) {
+    test.expect(1);
+    var actor = nactor.actor({
+        ping: function(msg){
+            return msg;
+        }
+    });
+
+    actor.init();
+
+    actor.ping("hello",function(msg){
+        test.ok(msg == "hello");
+        test.done();
+    });
+    
+    timeout(test);
+}
+
