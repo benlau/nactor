@@ -110,7 +110,31 @@ actor.ping(function(message){
 
 ```
 
+Uncaught Exception Handling
+---------------------------
 
+As the actor method is not called directly, you can not catch the exception from actor 
+in sender. Instead, you may call onUncaughtException() to add a listener for uncaught 
+exception.
+
+```javascript
+actor.onUncaughtException(function(err,action){
+    console.log(err);
+});
+```
+
+If an exception is uncaught , NActor will skip the processing message and handle the 
+next. If you don't like the behaviour. You may stop the message execuation by calling 
+''action.stop()''
+
+```javascript
+actor.onUncaughtException(function(err,action){
+    console.log(err);
+    action.stop();
+});
+```
+
+Remarks : The actor will no longer be usable after called ''action.stop()''
 
 Licence
 -------
