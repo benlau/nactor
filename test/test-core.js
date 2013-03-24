@@ -1,5 +1,5 @@
 
-var nactor = require("../lib/factory")
+var nactor = require("../")
 
 // Handle timeout
 function timeout(test,value) {
@@ -56,14 +56,9 @@ exports.autoInterfaceBinding = function(test) {
     actor.hello(function(msg){
         test.ok(msg == "world");
         test.done();
-        clearTimeout(handler);
     });
 
-    var handler = setTimeout(function(){
-        test.ok(false,"Timeout");
-        test.done();
-    },1000);
-
+    timeout(test);
 }
 
 exports.configWithFunc = function(test){
