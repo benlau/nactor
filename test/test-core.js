@@ -1,7 +1,7 @@
 
 var nactor = require("../")
 
-// Handle timeout
+// Utility to handle timeout
 function timeout(test,value) {
     if (value == undefined ) {
         value = 1000;
@@ -253,3 +253,26 @@ exports.askWithNonObjectArgument = function(test) {
     timeout(test);
 }
 
+exports.event = function(test) {
+    var actor = nactor.actor({
+        ping: function(msg){
+            var self = this;
+            setTimeout(function(){
+                self.emit("pong",msg);
+            },300);
+        }
+    });
+
+    actor.init();
+    
+    actor.ping("Hello!",function(reply){
+        test.ok(reply ==  undefined);
+    });
+    
+    actor.on("pong",function(msg){
+        test.ok(msg == "Hello!");
+        test.done();
+    });
+
+    timeout(test);
+}
