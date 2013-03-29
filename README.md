@@ -6,7 +6,7 @@ Description
 
 The implementation is inspired by [drama](https://github.com/stagas/drama)
 
-It is an implementation of actor model for node.js. It is designed
+It is an implementation of event-based actor model for node.js. It is designed
 for game backend service and may work with socket.io for sequential
 process of game events.
 
@@ -16,15 +16,17 @@ Features
 ---------
 
 * Easy to declare actor (Interface is similar to drama)
-   * Automated binding of async interface
+   * Automated binding of proxy interface
 * Sequential order of message execution
-    * All the message sent to actor model is processed in sequential order. 
-    * Actor's method can work in sync / async way (e.g read/write from database) .
+    * All the message sent to actor model is processed in sequential order 
+    * Actor's reply can work in async mode (e.g reply after database read/write) 
     * Prevent the race condition of high concurrent write/read to a resource
     * Example usage: Judgement of game event sent from multiple players
-* The actor is running on main thread
+* Event based actor model
+    * Running on main event loop
     * High performance
     * Not-restricted access to other resource
+* Support event emission from actor
 * Customizable error handling of uncaught exception in actor.
 
 Hello World
@@ -35,8 +37,10 @@ Hello World
 var nactor = require("nactor");
 
 var actor = nactor.actor({
-    // Declare your actor model by using object parameter
+    // Declare your actor model through a object
+
     hello : function(message) {
+        // Actor method
         console.log(message);
         return "Done";
     }
@@ -50,18 +54,26 @@ actor.ask("hello","Node.js!");
 
 ```
 
+The nactor.actor() constructs an actor model according to the declaration passed through
+argument. The return is a proxy of the actor which provides interface same as the declaration 
+but the method will not be executed immediately. Instead, it is scheduled to run by the 
+main event loop. The call is async.
+
+The ask() is the standard method to invoke actor's method from proxy. Alternative method 
+is "automated interface binding".
+
 Automated interface binding
 -------------------------------
 
-Instead of calling the ask() method , you may execute the method 
+Instead of calling the ask() , you may execute the declared method 
 by its name directly.
 
 ```javascript
 actor.hello("Node.js!");
 ```
 
-Remarks: It will not execute the hello() on actor immediately. It will
-be done on next trick.
+Remarks: You must call "init()" before execute any actor method. The interface will not be 
+binded without "init()"
 
 Reply
 -----
@@ -72,29 +84,37 @@ actor.hello("Node.js!",function(reply){
 });
 ```
 
-Async messaging
----------------
+Async Reply and Constructor
+---------------------------
 
 In the previous example shows that the return from actor method will be
-passed to sender's callback immediately. It is simple but not suitable for 
+passed to sender's callback. It is simple but not suitable for 
 calls that depend on I/O resource. In this case , it should enable the async 
-messaging interface 
+reply mechanism.
 
 ```javascript
 
 var nactor = require("nactor");
 
 var actor = nactor.actor(function(options) {
-   // Alternative way of actor declaration
-   this.seq = 0;
+
+   // Alternative method of actor declaration
+
+   // It is the constructor and will be executed by
+   // init() immediately
+
+   // Remarks: It is not suggested to put async method here.
+
+   this.seq = 0; // Variables that can be shared for all methods.
    this.timeout = options.timeout;
 
    return {
+      // Declare the method 
       ping : function(data,async){
           async.enable(); // Enable async interface
           setTimeout(function(){
               async.reply("Done!");
-          },this.timeout);
+          },this.timeout); // Using "this" to access the variable declared
       }
    };
 
@@ -110,6 +130,39 @@ actor.ping(function(message){
 });
 
 ```
+
+Event Emission
+--------------
+
+Beside ask() and reply(), actor may send information to sender through event emission.
+
+```javascript
+
+var nactor = require("nactor");
+
+var actor = nactor.actor(function(options){
+    var self = this;
+
+    this.handle = setInterval(function(){
+         self.emit("pong","Pong!");
+    },300);
+
+    return {
+        stop : function(){
+            clearInterval(this.handle);
+        }
+    }
+});
+
+actor.init();
+
+actor.on("pong",function(msg){
+   console.log(msg);
+});
+
+
+```
+
 
 Uncaught Exception Handling
 ---------------------------
