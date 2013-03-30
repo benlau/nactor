@@ -6,6 +6,7 @@
     "actors",
     "event based actor model"
   ],
+  "main" : "./lib/factory.js",
   "maintainers": [
     {
       "name": "Ben Lau",
@@ -13,7 +14,10 @@
       "web": ""
     }
   ],
-  "main" : "./lib/factory.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benlau/nactor.git"
+  },
   "licenses": [
     {
       "name": "New BSD",
