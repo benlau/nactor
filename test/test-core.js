@@ -1,5 +1,5 @@
 
-var nactor = require("../")
+var nactor = require("../lib/factory")
 
 // Utility to handle timeout
 function timeout(test,value) {

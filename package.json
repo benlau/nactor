@@ -1,9 +1,10 @@
 {
   "name": "nactor",
   "description": "Node.js actor model framework for game",
-  "version": "0.1",
+  "version": "0.1.1",
   "keywords": [
-    "actors"
+    "actors",
+    "event based actor model"
   ],
   "maintainers": [
     {
@@ -12,6 +13,7 @@
       "web": ""
     }
   ],
+  "main" : "./lib/factory.js",
   "licenses": [
     {
       "name": "New BSD",

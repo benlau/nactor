@@ -25,7 +25,7 @@ Features
 * Event based actor model
     * Running on main event loop
     * High performance
-    * Not-restricted access to other resource
+    * Non-restricted access to other resource
 * Support event emission from actor
 * Customizable error handling of uncaught exception in actor.
 
