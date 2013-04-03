@@ -20,7 +20,7 @@ function timeout(test,value) {
         _done.apply(test,arguments);
     }
 }
-
+	
 exports.helloWorld = function(test) {
     test.expect(1);
     var actor = nactor.actor({
@@ -65,7 +65,7 @@ exports.configWithFunc = function(test){
     test.expect(7);
 
     var actor = nactor.actor(function(options){
-        // "this" is referred to the runtime data of the actor. Which can be shared with 
+        // "this" is referred to the context of the actor. Which can be shared with all interface 
         this.seq = 0;
         test.ok(options.name == "TestActor");
         
