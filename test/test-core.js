@@ -306,6 +306,44 @@ exports.postAnonymous = function(test) {
 	timeout(test);
 }
 
+exports.post = function(test) {
+	var count = 0;
+	
+    var actor = nactor.actor(function() {
+		var self = this;
+		
+		setTimeout(function(){
+			self.post("ping","Hello!",function(data,async) {
+				async.enable();
+				test.equal(data,"pong");
+				test.equal(self.actor()._state , "PROCESSING"); // The reply is also an anonymous function.
+				
+				setTimeout(function() {
+					async.reply(); // Return without receiver
+					
+					setTimeout(function() {
+						// IDLE after reply.
+						test.equal(self.actor()._state , "IDLE");
+						test.done();
+					},100);
+				},100);
+			});
+		},100);
+		
+		return { 
+			ping : function(msg) {
+				test.equal(msg,"Hello!");
+				return "pong"
+			}
+		} 
+    });
+	
+	actor.init();
+	
+	timeout(test);
+}
+
+
 exports.loadTesing = function(test) {
 	var max = 1000;
 	var pingCount = 0;
