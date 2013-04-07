@@ -278,8 +278,6 @@ exports.event = function(test) {
 }
 
 exports.postAnonymous = function(test) {
-	var count = 0;
-	
     var actor = nactor.actor(function() {
 		var self = this;
 		
@@ -307,8 +305,6 @@ exports.postAnonymous = function(test) {
 }
 
 exports.post = function(test) {
-	var count = 0;
-	
     var actor = nactor.actor(function() {
 		var self = this;
 		
@@ -343,6 +339,35 @@ exports.post = function(test) {
 	timeout(test);
 }
 
+exports.next = function(test) {
+    var seq = [];
+    var actor = nactor.actor(function() {
+		
+		return { 
+			a : function(msg) {
+				test.equal(msg,"Hello!!");
+				seq.push('a');
+				this.next("b","Called by a"); // Inject 'b' into the queue
+			},
+			b : function(msg) {
+				test.equal(msg,"Called by a");
+				test.equal(seq.length , 1);
+				test.equal(seq[0] , 'a');
+				seq.push('b');
+			},
+			c: function(msg) {
+				test.equal(seq.length , 2);
+				test.equal(seq[1] , 'b');
+				test.done();
+			}
+		} 
+    });
+	
+	actor.init();
+	actor.a("Hello!!");
+	actor.c();
+	timeout(test);
+};
 
 exports.loadTesing = function(test) {
 	var max = 1000;
