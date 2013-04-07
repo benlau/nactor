@@ -277,6 +277,35 @@ exports.event = function(test) {
     timeout(test);
 }
 
+exports.postAnonymous = function(test) {
+	var count = 0;
+	
+    var actor = nactor.actor(function() {
+		var self = this;
+		
+		setTimeout(function(){
+			// Post an anonymouse function
+			self.post(function() {
+				test.equal(self.actor()._state , "PROCESSING");
+				test.equal(self.actor()._queue.length , 0);
+				
+				setTimeout(function() {
+					test.equal(self.actor()._state , "IDLE");
+					test.done();	
+				},100);
+				
+			});
+		},100);
+		
+		return { // An actor without any method.
+		} 
+    });
+	
+	actor.init();
+	
+	timeout(test);
+}
+
 exports.loadTesing = function(test) {
 	var max = 1000;
 	var pingCount = 0;
