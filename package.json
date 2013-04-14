@@ -1,7 +1,7 @@
 {
   "name": "nactor",
-  "description": "Node.js actor model framework for game",
-  "version": "0.1.1",
+  "description": "Event based actor model framework for game",
+  "version": "0.2.0",
   "keywords": [
     "actors",
     "event based actor model"
