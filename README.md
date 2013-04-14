@@ -37,10 +37,10 @@ Hello World
 var nactor = require("nactor");
 
 var actor = nactor.actor({
-    // Declare your actor model through a object
+    // Declare the context of your actor by an object
 
     hello : function(message) {
-        // Actor method
+        // Actor method - "hello"
         console.log(message);
         return "Done";
     }
@@ -134,7 +134,7 @@ actor.ping(function(message){
 Event Emission
 --------------
 
-Beside ask() and reply(), actor may send information to sender through event emission.
+Beside ask() and reply(), actor may send information to any observer through event emission.
 
 ```javascript
 
@@ -163,6 +163,61 @@ actor.on("pong",function(msg){
 
 ```
 
+The emit() method is added to the context automatically. It will not invoke observer's callback 
+immediately just like the ask() method. It is scheduled on tick.
+
+Post to the message queue from context
+--------------------------------------
+
+NActor implements a message queue and process one message at a time. It can be used to avoid
+concurrent access to a single resource. May simplify the complexity of your code and prevent
+race condition.
+
+As actor is not only an answer machine , it may have its own logic like time out checking.
+(e.g A player do not response within a time period, he/she will be considered as pass). 
+Once the time out reached, the action taken may be working together with other message from 
+sender. 
+
+If you are not happy with this situation , you may post your action to the message queue and let's
+NActor to handle the concurrecnt issues.
+
+```javascript
+
+var nactor = require("nactor");
+
+var actor = nactor.actor(function(options){
+    var self = this;
+    this.pressed = false;
+
+    return {
+        start : function(name){
+	 setTimeout(function() {
+	     if (!self.pressed) {
+                    self.post("giveup",name,function(data,async) { 
+                      // In case you want to process the reply. 
+                      // This callback is invoked like an actor method.  
+                      // If async.enable() is called, it will hold the message queue until async.reply()
+                    });
+                }
+	 },1000);
+        },
+        press : function() {
+            this.pressed = true;
+        },
+        giveup : function(name) {
+            console.log("Player[" + name + "] give up");
+        }
+
+    }
+});
+
+actor.init();
+actor.start("Player A");
+
+```
+
+Remarks: An alternative method to post() is next() , the arguments same as post() but the message will be injected to 
+the beginning of the message queue. 
 
 Uncaught Exception Handling
 ---------------------------
