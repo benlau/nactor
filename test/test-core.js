@@ -20,7 +20,31 @@ function timeout(test,value) {
         _done.apply(test,arguments);
     }
 }
+
+exports.processing = function(test) {
+	test.expect(2);
+	var actor = nactor.actor({
+		wait : function(time,async){
+			async.enable();
+			setTimeout(function() {
+				async.reply();
+			},time);
+		}
+	});
 	
+	actor.init();
+	actor.wait(200,function(){
+		test.done();
+	});
+	
+	test.equal(actor.processing() ,undefined);
+	setTimeout(function() {
+		test.ok(actor.processing() != undefined,"It should have processing message");
+	},100);
+	
+	timeout(test);
+}
+
 exports.helloWorld = function(test) {
     test.expect(1);
     var actor = nactor.actor({

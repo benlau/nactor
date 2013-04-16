@@ -1,5 +1,5 @@
-NActor - Node.js actor model framework for game
-======================================================
+NActor - Node.js Event based actor model framework for game
+===========================================================
 
 Description
 -------------
