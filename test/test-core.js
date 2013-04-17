@@ -454,6 +454,54 @@ exports.drama = function(test) {
     });
     
 }
+    
+exports.dispose = function(test) {
+    test.expect(4);
+	var actor = nactor.actor({
+		blocked : function(time,async){
+			async.enable();
+			setTimeout(function() {
+				async.reply();
+			},time);
+		},
+        nonblocked : function() {
+            return;
+        }
+	});
+	
+	actor.init();
+    
+    var name = "blocked";
+    
+    actor.system.on("received",function(message) {
+        test.ok(message!=undefined),
+        test.equal(message.name() ,name);
+
+        setTimeout(function() {
+            message.dispose();
+        },50);
+
+    });
+
+    actor.system.on("completed",function(message) {
+        test.ok(false); // should not reach here
+    });
+
+    actor.system.on("disposed",function(message) {
+        test.ok(message!=undefined),
+        test.equal(message.name() ,name);
+    });
+    
+    actor.blocked(200,function(){
+        test.ok(false);
+	});
+    
+    setTimeout(function() {
+        test.done();
+    },300);
+    
+	timeout(test);
+}
 
 exports.loadTesing = function(test) {
 	var max = 1000;
