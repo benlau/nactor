@@ -436,6 +436,25 @@ exports.onReceieved = function(test){
 	timeout(test);
 }
 
+exports.drama = function(test) {
+    // The argument of ask should be compatible with drama.
+    var actor = nactor.actor({
+		wait : function(time,async){
+			async.enable();
+			setTimeout(function() {
+				async.reply();
+			},time);
+		}
+	});
+	
+    actor.init();
+
+    actor.ask(actor,"wait",200,function() {
+       test.done(); 
+    });
+    
+}
+
 exports.loadTesing = function(test) {
 	var max = 1000;
 	var pingCount = 0;
