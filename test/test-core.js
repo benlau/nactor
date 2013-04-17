@@ -393,6 +393,49 @@ exports.next = function(test) {
 	timeout(test);
 };
 
+exports.onReceieved = function(test){
+    test.expect(8);
+	var actor = nactor.actor({
+		blocked : function(time,async){
+			async.enable();
+			setTimeout(function() {
+				async.reply();
+			},time);
+		},
+        nonblocked : function() {
+            return;
+        }
+	});
+	
+	actor.init();
+    
+    var name = "blocked";
+    
+    actor.system.on("received",function(message) {
+        test.ok(message!=undefined),
+        test.equal(message.name() ,name);
+    });
+
+    actor.system.on("completed",function(message) {
+        test.ok(message!=undefined),
+        test.equal(message.name() ,name);
+    });
+    
+    actor.blocked(200,function(){
+        setTimeout(function() {
+            name = "nonblocked";
+            actor.nonblocked(function() {
+                setTimeout(function() {
+                    test.done();
+                },100);
+            });
+            
+        },100);
+	});
+    
+	timeout(test);
+}
+
 exports.loadTesing = function(test) {
 	var max = 1000;
 	var pingCount = 0;
