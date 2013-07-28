@@ -21,6 +21,7 @@ function timeout(test,value) {
     }
 }
 
+
 exports.processing = function(test) {
 	test.expect(2);
 	var actor = nactor.actor({
@@ -503,6 +504,58 @@ exports.dispose = function(test) {
 	timeout(test);
 }
 
+// Prove the order of execution is in sequence even reply is called twice
+exports.replyTwiceAndSequenceOrder = function(test) {
+    test.expect(13);
+    var res = [];
+    var actor;
+
+    actor = nactor.actor({
+        delayReply: function(data,async) {
+            async.enable();
+            setTimeout(function() {
+                test.ok(data.index !== undefined);
+                res.push(data.index);
+                async.reply();
+                async.reply();
+            },data.timeout);
+        },
+        final: function() {
+        }
+    });
+
+    actor.init();
+
+    actor.onUncaughtException(function(err,action) {
+        test.ok(action !== undefined);
+        test.ok(action.stop !== undefined);
+    });
+
+    actor.delayReply({
+        index : 0,
+        timeout : 500
+    });
+
+    actor.delayReply({
+        index : 1,
+        timeout : 200
+    });
+
+    actor.delayReply({
+        index : 2,
+        timeout : 10
+    });
+
+    actor.final(function() {
+        test.ok(res.length == 3);
+        test.ok(res[0] == 0);
+        test.ok(res[1] == 1);
+        test.ok(res[2] == 2);
+        test.done();
+    });
+
+}
+
 exports.loadTesing = function(test) {
 	var max = 1000;
 	var pingCount = 0;
@@ -569,3 +622,4 @@ exports.loadTesing = function(test) {
 	
 	timeout(test,20 * 1000);
 }
+
