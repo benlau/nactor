@@ -527,6 +527,7 @@ exports.replyTwiceAndSequenceOrder = function(test) {
     actor.init();
 
     actor.onUncaughtException(function(err,action) {
+//        console.log(err.message);
         test.ok(action !== undefined);
         test.ok(action.stop !== undefined);
     });
