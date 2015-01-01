@@ -6,7 +6,7 @@
     "actors",
     "event based actor model"
   ],
-  "main" : "./lib/factory.js",
+  "main": "./lib/factory.js",
   "maintainers": [
     {
       "name": "Ben Lau",
@@ -23,5 +23,11 @@
       "name": "New BSD",
       "url": ""
     }
-  ]
+  ],
+  "devDependencies": {
+    "nodeunit": "^0.9.0"
+  },
+  "scripts": {
+    "test": "./node_modules/nodeunit/bin/nodeunit test"
+  }
 }
