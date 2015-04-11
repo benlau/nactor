@@ -6,14 +6,14 @@ function timeout(test,value) {
     if (value == undefined ) {
         value = 1000;
     }
-    
+
     var handler = setTimeout(function() {
         test.ok(false,"Timeout");
         test.done();
     },value);
-    
-    var _done = test.done; 
-    
+
+    var _done = test.done;
+
     // Hook of test.done();
     test.done = function() {
         clearTimeout(handler);
@@ -21,6 +21,31 @@ function timeout(test,value) {
     }
 }
 
+exports.die = function(test){
+    test.expect(1);
+    var actor = nactor.actor({
+        hello: function(){ console.log('YOU SHOULD NEVER SEE THIS'); }
+    });
+
+    actor.init();
+
+    actor.ask("hello");
+    actor.ask('hello');
+    actor.ask('hello');
+    actor.ask('hello');
+    actor.ask('hello');
+
+    actor.die(function(mailbox){
+        test.ok(mailbox.length > 0);
+
+        try{
+            actor.ask('hello');
+        }catch(ex){
+            test.done();
+        }
+
+    });
+}
 
 exports.processing = function(test) {
 	test.expect(2);
@@ -32,17 +57,17 @@ exports.processing = function(test) {
 			},time);
 		}
 	});
-	
+
 	actor.init();
 	actor.wait(200,function(){
 		test.done();
 	});
-	
+
 	test.equal(actor.processing() ,undefined);
 	setTimeout(function() {
 		test.ok(actor.processing() != undefined,"It should have processing message");
 	},100);
-	
+
 	timeout(test);
 }
 
@@ -60,7 +85,7 @@ exports.helloWorld = function(test) {
         test.ok(msg == "world");
         test.done();
     });
-    
+
     timeout(test);
 }
 
@@ -72,7 +97,7 @@ exports.autoInterfaceBinding = function(test) {
             return "world";
         }
     });
-    
+
     actor.init({
         name : "TestActor"
     });
@@ -90,10 +115,10 @@ exports.configWithFunc = function(test){
     test.expect(7);
 
     var actor = nactor.actor(function(options){
-        // "this" is referred to the context of the actor. Which can be shared with all interface 
+        // "this" is referred to the context of the actor. Which can be shared with all interface
         this.seq = 0;
         test.ok(options.name == "TestActor");
-        
+
         return {
             hello : function(data) {
                 test.ok(data != undefined);
@@ -103,7 +128,7 @@ exports.configWithFunc = function(test){
                 }
             }
         };
-        
+
     });
 
     actor.init({
@@ -127,7 +152,7 @@ exports.configWithFunc = function(test){
 /** Test async actor method */
 exports.async = function(test) {
     test.expect(6);
-    
+
     var actor = nactor.actor({
         hello : function() {
             return { seq : ++this.seq};
@@ -150,10 +175,10 @@ exports.async = function(test) {
         test.ok(reply.msgId == 1);
         test.ok(reply.seq == 1);
     });
-    
+
     actor.hello(function(reply){
-        test.ok(reply.msgId ==  undefined);        
-        test.ok(reply.seq == 2);        
+        test.ok(reply.msgId ==  undefined);
+        test.ok(reply.seq == 2);
     });
 
     actor.timeout({msgId : 2},function(reply){
@@ -171,7 +196,7 @@ exports.uncaughtException = function(test) {
     test.expect(4);
     var actor = nactor.actor(function(options){
         this.seq = 0;
-        
+
         return {
             normal: function() {
                 return {
@@ -184,13 +209,13 @@ exports.uncaughtException = function(test) {
             }
         }
     });
-    
-    actor.init();   
+
+    actor.init();
 
     actor.onUncaughtException(function(err,action){
         test.ok(action != undefined);
     });
-    
+
     actor.normal(function(reply){
         test.ok(reply.seq == 1);
     });
@@ -198,7 +223,7 @@ exports.uncaughtException = function(test) {
     actor.normal(function(reply){
         test.ok(reply.seq == 2);
     });
-    
+
     actor.fail(function(reply){
         test.ok(false,"If actor's method throw exception, it should not return");
     });
@@ -207,7 +232,7 @@ exports.uncaughtException = function(test) {
         test.ok(reply.seq == 3 ,"Although previous call thore exception failed ,the actor still work");
         test.done();
     });
-    
+
     timeout(test);
 }
 
@@ -216,7 +241,7 @@ exports.uncaughtExceptionAndStop = function(test) {
     test.expect(3);
     var actor = nactor.actor(function(options){
         this.seq = 0;
-        
+
         return {
             normal: function() {
                 return {
@@ -229,8 +254,8 @@ exports.uncaughtExceptionAndStop = function(test) {
             }
         }
     });
-    
-    actor.init();   
+
+    actor.init();
 
     actor.onUncaughtException(function(err,action){
         test.ok(action != undefined);
@@ -239,7 +264,7 @@ exports.uncaughtExceptionAndStop = function(test) {
             test.done();
         },200);
     });
-    
+
     actor.normal(function(reply){
         test.ok(reply.seq == 1);
     });
@@ -247,7 +272,7 @@ exports.uncaughtExceptionAndStop = function(test) {
     actor.normal(function(reply){
         test.ok(reply.seq == 2);
     });
-    
+
     actor.fail(function(reply){
         test.ok(false,"If actor's method throw exception, it should not return");
     });
@@ -256,7 +281,7 @@ exports.uncaughtExceptionAndStop = function(test) {
         test.ok(false ,"Expected fail");
         test.done();
     });
-    
+
     timeout(test);
 }
 
@@ -274,7 +299,7 @@ exports.askWithNonObjectArgument = function(test) {
         test.ok(msg == "hello");
         test.done();
     });
-    
+
     timeout(test);
 }
 
@@ -289,11 +314,11 @@ exports.event = function(test) {
     });
 
     actor.init();
-    
+
     actor.ping("Hello!",function(reply){
         test.ok(reply ==  undefined);
     });
-    
+
     actor.on("pong",function(msg){
         test.ok(msg == "Hello!");
         test.done();
@@ -305,43 +330,43 @@ exports.event = function(test) {
 exports.postAnonymous = function(test) {
     var actor = nactor.actor(function() {
 		var self = this;
-		
+
 		setTimeout(function(){
 			// Post an anonymouse function
 			self.post(function() {
 				test.equal(self.actor()._state , "PROCESSING");
 				test.equal(self.actor()._queue.length , 0);
-				
+
 				setTimeout(function() {
 					test.equal(self.actor()._state , "IDLE");
-					test.done();	
+					test.done();
 				},100);
-				
+
 			});
 		},100);
-		
+
 		return { // An actor without any method.
-		} 
+		}
     });
-	
+
 	actor.init();
-	
+
 	timeout(test);
 }
 
 exports.post = function(test) {
     var actor = nactor.actor(function() {
 		var self = this;
-		
+
 		setTimeout(function(){
 			self.post("ping","Hello!",function(data,async) {
 				async.enable();
 				test.equal(data,"pong");
 				test.equal(self.actor()._state , "PROCESSING"); // The reply is also an anonymous function.
-				
+
 				setTimeout(function() {
 					async.reply(); // Return without receiver
-					
+
 					setTimeout(function() {
 						// IDLE after reply.
 						test.equal(self.actor()._state , "IDLE");
@@ -350,25 +375,25 @@ exports.post = function(test) {
 				},100);
 			});
 		},100);
-		
-		return { 
+
+		return {
 			ping : function(msg) {
 				test.equal(msg,"Hello!");
 				return "pong"
 			}
-		} 
+		}
     });
-	
+
 	actor.init();
-	
+
 	timeout(test);
 }
 
 exports.next = function(test) {
     var seq = [];
     var actor = nactor.actor(function() {
-		
-		return { 
+
+		return {
 			a : function(msg) {
 				test.equal(msg,"Hello!!");
 				seq.push('a');
@@ -385,9 +410,9 @@ exports.next = function(test) {
 				test.equal(seq[1] , 'b');
 				test.done();
 			}
-		} 
+		}
     });
-	
+
 	actor.init();
 	actor.a("Hello!!");
 	actor.c();
@@ -407,11 +432,11 @@ exports.onReceieved = function(test){
             return;
         }
 	});
-	
+
 	actor.init();
-    
+
     var name = "blocked";
-    
+
     actor.system.on("received",function(message) {
         test.ok(message!=undefined),
         test.equal(message.name() ,name);
@@ -421,7 +446,7 @@ exports.onReceieved = function(test){
         test.ok(message!=undefined),
         test.equal(message.name() ,name);
     });
-    
+
     actor.blocked(200,function(){
         setTimeout(function() {
             name = "nonblocked";
@@ -430,10 +455,10 @@ exports.onReceieved = function(test){
                     test.done();
                 },100);
             });
-            
+
         },100);
 	});
-    
+
 	timeout(test);
 }
 
@@ -447,15 +472,15 @@ exports.drama = function(test) {
 			},time);
 		}
 	});
-	
+
     actor.init();
 
     actor.ask(actor,"wait",200,function() {
-       test.done(); 
+       test.done();
     });
-    
+
 }
-    
+
 exports.dispose = function(test) {
     test.expect(4);
 	var actor = nactor.actor({
@@ -469,11 +494,11 @@ exports.dispose = function(test) {
             return;
         }
 	});
-	
+
 	actor.init();
-    
+
     var name = "blocked";
-    
+
     actor.system.on("received",function(message) {
         test.ok(message!=undefined),
         test.equal(message.name() ,name);
@@ -492,15 +517,15 @@ exports.dispose = function(test) {
         test.ok(message!=undefined),
         test.equal(message.name() ,name);
     });
-    
+
     actor.blocked(200,function(){
         test.ok(false);
 	});
-    
+
     setTimeout(function() {
         test.done();
     },300);
-    
+
 	timeout(test);
 }
 
@@ -569,32 +594,32 @@ exports.loadTesing = function(test) {
 			var timer = Math.floor((Math.random()*10)+1);
 			setTimeout(function(){
 				actor.emit("pong",pingCount);
-				async.reply();			
+				async.reply();
 			},timer);
         },
-        
+
         hello: function(data,async){
 			async.enable();
 			helloCount++;
 			var timer = Math.floor((Math.random()*10)+1);
 			setTimeout(function(){
-				async.reply();			
+				async.reply();
 			},timer);
-			
+
 			if (helloCount == max) {
 				test.equal(pingCount , max);
 				test.equal(helloCount , max);
-				test.done();				
+				test.done();
 			}
-			
+
         },
-        
+
         final : function(){
 		}
     });
-    
+
 	actor.init();
-	
+
 	actor.on("pong",function() {
 		if (pingCount % 2 == 0) {
 			actor.hello();
@@ -603,11 +628,11 @@ exports.loadTesing = function(test) {
 			setTimeout(function(){
 				actor.hello();
 			},timer);
-		}		
+		}
 	});
-	
+
 	var i = 0;
-	
+
 	var handler = setInterval(function(){
 		var c = i + Math.floor((Math.random()*100)+1);
 		while (i < max && i < c) {
@@ -617,10 +642,9 @@ exports.loadTesing = function(test) {
 		if (i >=max){
 			clearInterval(handler);
 		}
-		
+
 	},50);
-	
-	
+
+
 	timeout(test,20 * 1000);
 }
-
