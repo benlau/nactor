@@ -1,20 +1,28 @@
-NActor - Node.js Event based actor model framework for game
-===========================================================
+rNr aka "Run Nactor Run" - Node.js Event based actor model forked from [nactor](https://github.com/benlau/nactor)
+=================================================================================================================
 
 Description
 -------------
 
-The implementation is inspired by [drama](https://github.com/stagas/drama)
+This is based off of the NodeJs actor model implemented in [nactor](https://github.com/benlau/nactor).  Nactor looks like a good starting point for some of the actor model basics.  However, some of the most interesting features of actor systems are:
 
-It is an implementation of event-based actor model for node.js. It is designed
-for game backend service and may work with socket.io for sequential
-process of game events.
+1.  Basic Supervision
+2.  Hot-swapping of actor implementations
+3.  Location transparency of remote actors
+  
+**Most**, if not all, of the NodeJs actor systems out there do not implement these features.  The goal or rNr is to provide these 3 features.  Along the way, we might also make some other changes to bring the feature set more inline with actor models from other languages.
 
-Of course it can be used for non-game service.
+rNr will also use a modern build-chain and general tooling stack.  This project will be using babel to transpile from ES6 down to ES5, as well as mocha and chai for unit-testing.  Who knows, it may even use Travis-CI in the future.
 
-Features
----------
 
+New Features
+------------
+* **Supervision**
+* **Hot-swap of actor implementations**
+* **Location transparency of remote actors**
+ 
+Existing Features
+-----------------
 * Easy to declare actor (Interface is similar to drama)
    * Automated binding of proxy interface
 * Sequential order of message execution
