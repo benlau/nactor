@@ -1,5 +1,7 @@
-rNr aka "Run Nactor Run" - Node.js Event based actor model forked from [nactor](https://github.com/benlau/nactor)
-=================================================================================================================
+rNr aka "Run Nactor Run"
+========================
+Node.js Event based actor model forked from [nactor](https://github.com/benlau/nactor)
+
 
 Description
 -------------
