@@ -11,25 +11,24 @@ This is based off of the NodeJs actor model implemented in [nactor](https://gith
 1.  Basic Supervision
 2.  Hot-swapping of actor implementations
 3.  Location transparency of remote actors
-  
+
 **Most**, if not all, of the NodeJs actor systems out there do not implement these features.  The goal or rNr is to provide these 3 features.  Along the way, we might also make some other changes to bring the feature set more inline with actor models from other languages.
 
 rNr will also use a modern build-chain and general tooling stack.  This project will be using babel to transpile from ES6 down to ES5, as well as mocha and chai for unit-testing.  Who knows, it may even use Travis-CI in the future.
-
 
 New Features
 ------------
 * **Supervision**
 * **Hot-swap of actor implementations**
 * **Location transparency of remote actors**
- 
+
 Existing Features
 -----------------
 * Easy to declare actor (Interface is similar to drama)
    * Automated binding of proxy interface
 * Sequential order of message execution
-    * All the message sent to actor model is processed in sequential order 
-    * Actor's reply can work in async mode (e.g reply after database read/write) 
+    * All the message sent to actor model is processed in sequential order
+    * Actor's reply can work in async mode (e.g reply after database read/write)
     * Prevent the race condition of high concurrent write/read to a resource
     * Example usage: Judgement of game event sent from multiple players
 * Event based actor model
@@ -57,7 +56,7 @@ var actor = nactor.actor({
 });
 
 // Intialize the actor
-actor.init(); 
+actor.init();
 
 // Ask to execute the hello() method. It will be called in next tick
 actor.ask("hello","Node.js!");
@@ -65,24 +64,24 @@ actor.ask("hello","Node.js!");
 ```
 
 The nactor.actor() constructs an actor model according to the declaration passed through
-argument. The return is a proxy of the actor which provides interface same as the declaration 
-but the method will not be executed immediately. Instead, it is scheduled to run by the 
+argument. The return is a proxy of the actor which provides interface same as the declaration
+but the method will not be executed immediately. Instead, it is scheduled to run by the
 main event loop. The call is async.
 
-The ask() is the standard method to invoke actor's method from proxy. Alternative method 
+The ask() is the standard method to invoke actor's method from proxy. Alternative method
 is "automated interface binding".
 
 Automated interface binding
 -------------------------------
 
-Instead of calling the ask() , you may execute the declared method 
+Instead of calling the ask() , you may execute the declared method
 by its name directly.
 
 ```javascript
 actor.hello("Node.js!");
 ```
 
-Remarks: You must call "init()" before execute any actor method. The interface will not be 
+Remarks: You must call "init()" before execute any actor method. The interface will not be
 binded without "init()"
 
 Reply
@@ -98,8 +97,8 @@ Async Reply and Constructor
 ---------------------------
 
 In the previous example shows that the return from actor method will be
-passed to sender's callback. It is simple but not suitable for 
-calls that depend on I/O resource. In this case , it should enable the async 
+passed to sender's callback. It is simple but not suitable for
+calls that depend on I/O resource. In this case , it should enable the async
 reply mechanism.
 
 ```javascript
@@ -119,7 +118,7 @@ var actor = nactor.actor(function(options) {
    this.timeout = options.timeout;
 
    return {
-      // Declare the method 
+      // Declare the method
       ping : function(data,async){
           async.enable(); // Enable async interface
           setTimeout(function(){
@@ -133,7 +132,7 @@ var actor = nactor.actor(function(options) {
 // Intialize the actor
 actor.init({
    timeout : 200
-}); 
+});
 
 actor.ping(function(message){
    console.log(message); // Done!
@@ -173,7 +172,7 @@ actor.on("pong",function(msg){
 
 ```
 
-The emit() method is added to the context automatically. It will not invoke observer's callback 
+The emit() method is added to the context automatically. It will not invoke observer's callback
 immediately just like the ask() method. It is scheduled on tick.
 
 Post to the message queue from context
@@ -184,9 +183,9 @@ concurrent access to a single resource. May simplify the complexity of your code
 race condition.
 
 As actor is not only an answer machine , it may have its own logic like time out checking.
-(e.g A player do not response within a time period, he/she will be considered as pass). 
-Once the time out reached, the action taken may be working together with other message from 
-sender. 
+(e.g A player do not response within a time period, he/she will be considered as pass).
+Once the time out reached, the action taken may be working together with other message from
+sender.
 
 If you are not happy with this situation , you may post your action to the message queue and let's
 NActor to handle the concurrecnt issues.
@@ -203,8 +202,8 @@ var actor = nactor.actor(function(options){
         start : function(name){
 	 setTimeout(function() {
 	     if (!self.pressed) {
-                    self.post("giveup",name,function(data,async) { 
-                      // In case you want to process the reply. 
+                    self.post("giveup",name,function(data,async) {
+                      // In case you want to process the reply.
                       // This callback is invoked like an actor method.  
                       // If async.enable() is called, it will hold the message queue until async.reply()
                     });
@@ -226,14 +225,14 @@ actor.start("Player A");
 
 ```
 
-Remarks: An alternative method to post() is next() , the arguments same as post() but the message will be injected to 
-the beginning of the message queue. 
+Remarks: An alternative method to post() is next() , the arguments same as post() but the message will be injected to
+the beginning of the message queue.
 
 Uncaught Exception Handling
 ---------------------------
 
-As the actor method is not called directly, you can not catch the exception from actor 
-in sender. Instead, you may call onUncaughtException() to add a listener for uncaught 
+As the actor method is not called directly, you can not catch the exception from actor
+in sender. Instead, you may call onUncaughtException() to add a listener for uncaught
 exception.
 
 ```javascript
@@ -242,8 +241,8 @@ actor.onUncaughtException(function(err,action){
 });
 ```
 
-If an exception is uncaught , NActor will skip the processing message and handle the 
-next. If you don't like the behaviour. You may stop the message execuation by calling 
+If an exception is uncaught , NActor will skip the processing message and handle the
+next. If you don't like the behaviour. You may stop the message execution by calling
 ''action.stop()''
 
 ```javascript
@@ -254,6 +253,13 @@ actor.onUncaughtException(function(err,action){
 ```
 
 Remarks : The actor will no longer be usable after called ''action.stop()''
+
+Build & Dev
+-----------
+```
+npm install -g nodemon
+npm run dev
+```
 
 Licence
 -------

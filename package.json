@@ -6,7 +6,7 @@
     "actors",
     "event based actor model"
   ],
-  "main": "./lib/factory.js",
+  "main": "./dist/factory.js",
   "maintainers": [
     {
       "name": "Brandon Wilhite",
@@ -30,7 +30,8 @@
     "nodeunit": "^0.9.0"
   },
   "scripts": {
-    "test": "./node_modules/nodeunit/bin/nodeunit test/unit"
+    "test": "cp -r lib/* dist && babel es6 --out-dir dist && ./node_modules/nodeunit/bin/nodeunit test/unit",
+    "dev": "nodemon --ignore 'dist/**/*' -e js --exec 'npm test'"
   },
   "dependencies": {
     "bluebird": "^2.9.24",
