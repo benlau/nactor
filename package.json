@@ -31,6 +31,7 @@
   "scripts": {
     "test-perf": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/perf --reporter spec",
     "test": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/unit --reporter spec",
+    "watch-perf": "nodemon --ignore 'dist/**/*' -e js --exec 'npm run test-perf'",
     "dev": "nodemon --ignore 'dist/**/*' -e js --exec 'npm test'"
   },
   "dependencies": {

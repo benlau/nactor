@@ -1,34 +1,6 @@
 var   nactor    = require("../../dist/factory"),
       expect    = require("chai").expect;
 
-describe('Die()',function(){
-    it('causes an actor to stop receiving messages',function(done){
-        var actor = nactor.actor({
-            hello: function(){ console.log('YOU SHOULD NEVER SEE THIS'); }
-        });
-
-        actor.init();
-
-        actor.ask("hello");
-        actor.ask('hello');
-        actor.ask('hello');
-        actor.ask('hello');
-        actor.ask('hello');
-
-        actor.die(function(mailbox){
-            expect(mailbox.length).to.gt(0);
-
-            try{
-                actor.ask('hello');
-            }catch(ex){
-                done();
-            }
-
-        });
-    });
-
-});
-
 describe('core-tests',function(){
     it('tests processing',function(done){
         var actor = nactor.actor({
