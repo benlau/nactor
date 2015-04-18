@@ -1,88 +1,71 @@
-var nactor = require("../../dist/factory")
+var     nactor    = require("../../dist/factory"),
+        expect    = require("chai").expect;
 
-// Utility to handle timeout
-function timeout(test,value) {
-  if (value == undefined ) {
-    value = 1000;
-  }
+describe('Load Test',function(){
+    it('tests processing a lot of stuff',function(done){
+        this.timeout(20*1000);
 
-  var handler = setTimeout(function() {
-    test.ok(false,"Timeout");
-    test.done();
-  },value);
+        var max = 1000;
+        var pingCount = 0;
+        var helloCount = 0;
+        var actor = nactor.actor({
+            ping: function(data,async){
+                var actor = this;
+                async.enable();
+                pingCount++;
+                var timer = Math.floor((Math.random()*10)+1);
+                setTimeout(function(){
+                    actor.emit("pong",pingCount);
+                    async.reply();
+                },timer);
+            },
 
-  var _done = test.done;
+            hello: function(data,async){
+                async.enable();
+                helloCount++;
+                var timer = Math.floor((Math.random()*10)+1);
+                setTimeout(function(){
+                    async.reply();
+                },timer);
 
-  // Hook of test.done();
-  test.done = function() {
-    clearTimeout(handler);
-    _done.apply(test,arguments);
-  }
-}
+                if (helloCount == max) {
+                    expect(pingCount).to.equal(max);
+                    expect(helloCount).to.equal(max);
+                    done();
+                }
 
-exports.loadTesing = function(test) {
-  var max = 1000;
-  var pingCount = 0;
-  var helloCount = 0;
-  var actor = nactor.actor({
-      ping: function(data,async){
-        var actor = this;
-        async.enable();
-        pingCount++;
-        var timer = Math.floor((Math.random()*10)+1);
-        setTimeout(function(){
-          actor.emit("pong",pingCount);
-          async.reply();
-      },timer);
-    },
+            },
 
-    hello: function(data,async){
-      async.enable();
-      helloCount++;
-      var timer = Math.floor((Math.random()*10)+1);
-      setTimeout(function(){
-        async.reply();
-      },timer);
+            final : function(){
+            }
+        });
 
-      if (helloCount == max) {
-        test.equal(pingCount , max);
-        test.equal(helloCount , max);
-        test.done();
-      }
+        actor.init();
 
-    },
+        actor.on("pong",function() {
+            if (pingCount % 2 == 0) {
+                actor.hello();
+            } else {
+                var timer = Math.floor((Math.random()*10)+1);
+                setTimeout(function(){
+                    actor.hello();
+                },timer);
+            }
+        });
 
-    final : function(){
-    }
-  });
+        var i = 0;
 
-  actor.init();
+        var handler = setInterval(function(){
+            var c = i + Math.floor((Math.random()*100)+1);
+            while (i < max && i < c) {
+                actor.ping();
+                i++;
+            }
+            if (i >=max){
+                clearInterval(handler);
+            }
 
-  actor.on("pong",function() {
-    if (pingCount % 2 == 0) {
-      actor.hello();
-    } else {
-      var timer = Math.floor((Math.random()*10)+1);
-      setTimeout(function(){
-        actor.hello();
-      },timer);
-    }
-  });
+        },50);
+    });
 
-  var i = 0;
-
-  var handler = setInterval(function(){
-    var c = i + Math.floor((Math.random()*100)+1);
-    while (i < max && i < c) {
-      actor.ping();
-      i++;
-    }
-    if (i >=max){
-      clearInterval(handler);
-    }
-
-  },50);
-
-
-  timeout(test,20 * 1000);
-}
+});

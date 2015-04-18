@@ -29,6 +29,7 @@
     "mocha": "^2.2.4"
   },
   "scripts": {
+    "test-perf": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/perf --reporter spec",
     "test": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/unit --reporter spec",
     "dev": "nodemon --ignore 'dist/**/*' -e js --exec 'npm test'"
   },
