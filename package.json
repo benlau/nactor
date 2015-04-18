@@ -30,7 +30,7 @@
     "nodeunit": "^0.9.0"
   },
   "scripts": {
-    "test": "cp -r lib/* dist && babel es6 --out-dir dist && ./node_modules/nodeunit/bin/nodeunit test/unit",
+    "test": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/unit --reporter spec",
     "dev": "nodemon --ignore 'dist/**/*' -e js --exec 'npm test'"
   },
   "dependencies": {

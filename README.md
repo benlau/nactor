@@ -242,7 +242,7 @@ actor.onUncaughtException(function(err,action){
 ```
 
 If an exception is uncaught , NActor will skip the processing message and handle the
-next. If you don't like the behaviour. You may stop the message execution by calling
+next. If you don't like the behavior. You may stop the message execution by calling
 ''action.stop()''
 
 ```javascript
