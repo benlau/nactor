@@ -1,7 +1,7 @@
-var     nactor      = require("../../dist/lib/factory"),
+var     nactor      = require("../../lib/factory"),
         expect      = require("chai").expect,
         assert      = require('chai').assert,
-        Poison      = require('../../dist/lib/Messages').PoisonPill;
+        Poison      = require('../../lib/Messages').PoisonPill;
 
 describe('Supervision',function(){
     it('will re-throw child exceptions if they are not handled by a strategy',function(done){

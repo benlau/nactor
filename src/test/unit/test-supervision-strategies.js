@@ -1,8 +1,8 @@
-var     nactor      = require("../../dist/lib/factory"),
+var     nactor      = require("../../lib/factory"),
 expect      = require("chai").expect,
 assert      = require('chai').assert,
-Poison      = require('../../dist/lib/Messages').PoisonPill;
-Strategy    = require('../../dist/lib/SupervisionStrategies'),
+Poison      = require('../../lib/Messages').PoisonPill,
+Strategy    = require('../../lib/SupervisionStrategies'),
 resumeOn    = Strategy.resumeOn,
 stopOn      = Strategy.stopOn;
 

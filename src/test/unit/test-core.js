@@ -1,4 +1,4 @@
-var   nactor    = require("../../dist/lib/factory"),
+var   nactor    = require("../../lib/factory"),
       expect    = require("chai").expect;
 
 describe('core-tests',function(){
@@ -99,7 +99,7 @@ describe('core-tests',function(){
             timeout : function(data,async) {
                 async.enable();
                 this.seq++;
-                self = this;
+                var self = this;
                 setTimeout(function(){
                     async.reply({msgId : data.msgId , seq : self.seq});
                 },200);

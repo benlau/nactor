@@ -29,10 +29,10 @@
     "mocha": "^2.2.4"
   },
   "scripts": {
-    "test-perf": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/perf --reporter spec",
-    "test": "cp -r lib/* dist && babel es6 --source-maps inline --out-dir dist && ./node_modules/.bin/mocha test/unit --reporter spec",
+    "test-perf": "babel src --source-maps inline --out-dir dist && ./node_modules/.bin/mocha dist/test/perf --reporter spec",
+    "test": "babel src --source-maps inline --out-dir dist && ./node_modules/.bin/mocha dist/test/unit --reporter spec",
     "watch-perf": "nodemon --ignore 'dist/**/*' -e js --exec 'npm run test-perf'",
-    "dev": "nodemon --ignore 'dist/**/*' -e js --exec 'npm test'"
+    "dev": "nodemon --ignore 'dist/**/*' -e es6,js --exec 'npm test'"
   },
   "dependencies": {
     "bluebird": "^2.9.24",

@@ -1,10 +1,10 @@
 
 /** Async interface object
- * 
+ *
  *  @constructor
  */
 
-Async = function(done){
+var Async = function(done){
     this._enabled = false;
     this._done = done;
 }
@@ -22,4 +22,4 @@ Async.prototype.reply  = function(args) {
     this._done(args);
 }
 
-module.exports = Async
+module.exports = Async;

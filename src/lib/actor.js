@@ -1,6 +1,5 @@
 var Async           = require("./async"),
     message         = require("./message"),
-    EventEmitter    = require('events').EventEmitter,
     r               = require('ramda');
 
 var Actor = function(config) {
@@ -99,15 +98,6 @@ Actor.prototype.send = function(msg,prepend) {
         self.handleException(err);
     });
     this._enqueue(msg,prepend);
-}
-
-Actor.prototype.die = function(callback){
-    this._state = 'DEAD';
-    if(callback){
-        callback(this._queue);
-        this._queue = [];
-}
-    this._context.emit("Termination",{});
 }
 
 Actor.prototype._enqueue = function(message,prepend){
@@ -242,6 +232,15 @@ Actor.prototype.onUncaughtException = function(callback){
  */
 Actor.prototype._uncaughtExceptionHandler = function(err,action) {
     throw err;
+}
+
+Actor.prototype.die = function(callback){
+    this._state = 'DEAD';
+    if(callback){
+        callback(this._queue);
+        this._queue = [];
+    }
+    this._context.emit("Termination",{});
 }
 
 Actor.prototype.supervise = function(strategy,actor){

@@ -36,7 +36,7 @@ var Proxy = function(actor) {
 
 Proxy.prototype.init = function(options) {
     var iface = this._actor.init(options),
-         self = this;
+         self = this,
          args = [""];
 
     for (var api in iface) {
