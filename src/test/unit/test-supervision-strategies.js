@@ -154,6 +154,36 @@ describe('Supervision Strategies',function(){
         });
 
         child.ask('dangerous');//this should kick off the exception which ultimately gets re-thrown by parent
-//        child.ask('hello',function(){ done(); });
+    });
+
+    it('escalates entirely up the chain',function(done){
+
+        var grandParent = nactor.actor({
+            hello: function(){ return "Done"; }
+        });
+        grandParent.init();
+
+        var parent = nactor.actor({
+            hello: function(){ return "Done"; }
+        });
+        parent.init();
+
+        var child = nactor.actor({
+            hello: function(){ return "Done"; },
+            dangerous: function(){ throw new Poison("this should fail"); }
+        });
+        child.init();
+
+        grandParent.supervise([],parent);
+
+        parent.supervise([
+            escalateOn(Poison)
+        ],child);
+
+        grandParent.onUncaughtException(function(err,action){
+            done();
+        });
+
+        child.ask('dangerous');//this should kick off the exception which ultimately gets re-thrown by parent
     });
 });

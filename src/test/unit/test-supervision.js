@@ -3,6 +3,8 @@ var     nactor      = require("../../lib/factory"),
         assert      = require('chai').assert,
         Poison      = require('../../lib/Messages').PoisonPill;
 
+import r from 'ramda';
+
 describe('Supervision',function(){
     it('will re-throw child exceptions if they are not handled by a strategy',function(done){
 
@@ -56,7 +58,7 @@ describe('Supervision',function(){
         child.init();
 
         parent.supervise([
-            [Poison, function(err,action,child,parent){
+            [r.is(Poison), function(err,action,child,parent){
                 expect(true).to.equal(true);
                 done();
             }]

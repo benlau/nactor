@@ -2,7 +2,7 @@ var Async           = require("./async"),
     message        = require("./message"),
     r               = require('ramda');
 
-import {getAddMatcher, getMatchAll} from './MatchEmitter';
+import {getAddMatcher, getMatchAll, MatchEmitter} from './MatchEmitter';
 import {ActorTerminated, ActorRestarted} from './SystemMessages';
 
 var Actor = function(config) {
@@ -170,6 +170,7 @@ Actor.prototype.tick = function() {
 
     try {
         this._emitSystem("received",message);
+
 		if (typeof message.method == "function") { // Anonymous function
 			reply = message.method.call(this._context,message.params,async);
 		} else {
@@ -180,19 +181,15 @@ Actor.prototype.tick = function() {
             message.reply(reply);
         }
      } catch(err) {
-
         if ( this.handleException(err) ) {
 
             if(this._state !== 'DEAD'){
                 this._state = "IDLE";
                 this.nextTick();
-            }else{
-                //dead actor exception
-                //this.handleException(new Error('attempting to process messages for a dead actor'));
             }
         }
-
      }
+
 }
 
 /** Get the processing message */
@@ -253,28 +250,19 @@ Actor.prototype.die = function(callback){
 Actor.prototype.supervise = function(strategy,actor){
     var self = this;
 
-    var findHandler = function(err){
-        return r.find(function(kvp){
-                    return r.is(r.head(kvp),err);
-                },strategy);
-    };
+    var _matcher = new MatchEmitter();
+    r.forEach(strat => {
+        _matcher.add(strat[0],strat[1]);
+    },strategy);
 
-    var errorHandler = function(err){
-        var found = findHandler(err);
-        if(found){
-            return r.last(found);
-        }
-    };
+    _matcher.default((err,action)=>{
+        self.handleException(err);
+    });
 
     actor.onUncaughtException(function(err,action){
-
-        var handler = errorHandler(err);
-        if(handler){
-            handler(err,action,actor,self);
-        }else{
-            self.handleException(err);
-        }
+        _matcher.matchFirst(err,action,actor,self);
     });
+
 
     this._children.push(actor);
 }

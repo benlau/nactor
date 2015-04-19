@@ -38,6 +38,9 @@ export class MatchEmitter {
     constructor(){
         this.matchers = [];
         this.add = getAddMatcher(this.matchers);
+        this.default = function(act){
+            this.add(_ => true, act);
+        };
         this.matchFirst = getMatchFirst(this.matchers);
         this.matchAll = getMatchAll(this.matchers);
     }

@@ -25,15 +25,15 @@ export function escalate(err,action,child,parent){
 };
 
 export function resumeOn(errType){
-    return [errType,resume];
+    return [r.is(errType),resume];
 };
 export function restartOn(errType){
-    return [errType,restart];
+    return [r.is(errType),restart];
 };
 export function stopOn(errType){
-    return [errType,stop];
+    return [r.is(errType),stop];
 };
 //note escalate is the default behavior anyway
 export function escalateOn(errType){
-    return [errType,escalate];
+    return [r.is(errType),escalate];
 }
