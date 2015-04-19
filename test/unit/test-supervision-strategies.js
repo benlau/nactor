@@ -1,7 +1,7 @@
 var     nactor      = require("../../dist/factory"),
 expect      = require("chai").expect,
 assert      = require('chai').assert,
-Poison      = require('../../dist/Errors').Poison;
+Poison      = require('../../dist/Messages').PoisonPill;
 Strategy    = require('../../dist/SupervisionStrategies'),
 resumeOn    = Strategy.resumeOn,
 stopOn      = Strategy.stopOn;
@@ -62,6 +62,11 @@ describe('Supervision Strategies',function(){
 
         //when we stop the child a 'dead actor' error should get propagated up to here
         parent.onUncaughtException(function(err,action){
+            //done();
+            assert.fail('all exceptions raised should get caught');
+        });
+
+        child.on('Termination',function(){
             done();
         });
 

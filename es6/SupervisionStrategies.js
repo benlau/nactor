@@ -14,6 +14,7 @@ export function restart(err,action,child,parent){
 export function stop(err,action,child,parent){
     child.die();
     //remove child from parent's tree
+    //what to do with the dead child's mailbox?
 };
 //note escalate is the default behavior anyway
 export function escalate(err,action,child,parent){
