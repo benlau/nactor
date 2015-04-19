@@ -10,7 +10,7 @@ export function resume(err,action,child,parent){
     return;
 };
 export function restart(err,action,child,parent){
-    return;
+    child.clearAndRestart();
 };
 export function stop(err,action,child,parent){
     child.die(mailbox => {

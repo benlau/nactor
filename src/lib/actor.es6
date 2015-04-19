@@ -3,7 +3,7 @@ var Async           = require("./async"),
     r               = require('ramda');
 
 import {getAddMatcher, getMatchAll} from './MatchEmitter';
-import {Termination} from './SystemMessages';
+import {ActorTerminated, ActorRestarted} from './SystemMessages';
 
 var Actor = function(config) {
     this._config = config;
@@ -247,7 +247,7 @@ Actor.prototype.die = function(callback){
         callback(this._queue);
         this._queue = [];
     }
-    this.emitMatch(new Termination(this));
+    this.emitMatch(new ActorTerminated(this));
 }
 
 Actor.prototype.supervise = function(strategy,actor){
@@ -277,6 +277,16 @@ Actor.prototype.supervise = function(strategy,actor){
     });
 
     this._children.push(actor);
+}
+
+Actor.prototype.clearAndRestart = function(){
+
+    this._state = "IDLE";
+
+    //looks like we need a hook to clear out any remaining state....
+
+    this.emitMatch(new ActorRestarted(this));
+    this.nextTick();
 }
 
 module.exports = Actor;

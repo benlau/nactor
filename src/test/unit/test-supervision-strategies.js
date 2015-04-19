@@ -3,9 +3,11 @@ var     nactor      = require("../../lib/factory"),
         assert      = require('chai').assert,
         Strategy    = require('../../lib/SupervisionStrategies'),
         resumeOn    = Strategy.resumeOn,
-        stopOn      = Strategy.stopOn;
+        stopOn      = Strategy.stopOn,
+        restartOn   = Strategy.restartOn,
+        escalateOn  = Strategy.escalateOn;
 
-import {Termination, PoisonPill as Poison} from '../../lib/SystemMessages';
+import {ActorTerminated, ActorRestarted, PoisonPill as Poison} from '../../lib/SystemMessages';
 import r from 'ramda';
 
 describe('Supervision Strategies',function(){
@@ -70,7 +72,7 @@ describe('Supervision Strategies',function(){
 
 
         var internal = parent.getInternalActor();
-        child.onMatch(r.is(Termination), _ => {
+        child.onMatch(r.is(ActorTerminated), _ => {
             expect(internal._children.length).to.equal(0);
             done();
         });
@@ -80,5 +82,78 @@ describe('Supervision Strategies',function(){
         child.ask('dangerous');//this should kick off the exception which ultimately gets re-thrown by parent
         child.ask('hello',function(){ assert.fail('this handler should never get called') });
 
+    });
+
+    it('provides a restart strategy',function(done){
+
+        var parent = nactor.actor({
+            hello: function(){
+                return "Done";
+            }
+        });
+        parent.init();
+
+        var child = nactor.actor({
+            hello: function(){
+                return "Done";
+            },
+            dangerous: function(){ throw new Poison("this should fail"); }
+        });
+
+        child.init();
+
+        parent.supervise([
+            restartOn(Poison)
+        ],child);
+
+        //when we stop the child a 'dead actor' error should get propagated up to here
+        parent.onUncaughtException(function(err,action){
+            //done();
+            assert.fail('all exceptions raised should get caught');
+        });
+
+
+        var internal = child.getInternalActor();
+
+        child.onMatch(r.is(ActorRestarted), _ => {
+            expect(parent.getInternalActor()._children.length).to.equal(1);
+            expect(internal._state).to.equal('IDLE');
+        });
+
+        expect(parent.getInternalActor()._children.length).to.equal(1);
+
+        child.ask('dangerous');//this should kick off the exception
+        child.ask('hello',function(){ done(); });
+    });
+
+
+    it('provides an escalate strategy',function(done){
+
+        var parent = nactor.actor({
+            hello: function(){
+                return "Done";
+            }
+        });
+        parent.init();
+
+        var child = nactor.actor({
+            hello: function(){
+                return "Done";
+            },
+            dangerous: function(){ throw new Poison("this should fail"); }
+        });
+
+        child.init();
+
+        parent.supervise([
+            escalateOn(Poison)
+        ],child);
+
+        parent.onUncaughtException(function(err,action){
+            done();
+        });
+
+        child.ask('dangerous');//this should kick off the exception which ultimately gets re-thrown by parent
+//        child.ask('hello',function(){ done(); });
     });
 });

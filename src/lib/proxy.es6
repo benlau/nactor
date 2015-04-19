@@ -115,4 +115,8 @@ Proxy.prototype.onMatch = function(...args){
     this._actor.onMatch(...args);
 }
 
+Proxy.prototype.clearAndRestart = function(...args){
+    this._actor.clearAndRestart(...args);
+}
+
 module.exports = Proxy;
