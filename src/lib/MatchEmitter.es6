@@ -1,4 +1,4 @@
-var r = require('ramda');
+import r from 'ramda';
 
 export class NoMatch extends Error {
     constructor(args = [], message = undefined, fileName = undefined, lineNumber = undefined) { // ES6 features Default Parameters
@@ -41,4 +41,11 @@ export class MatchEmitter {
         this.matchFirst = getMatchFirst(this.matchers);
         this.matchAll = getMatchAll(this.matchers);
     }
+}
+
+export function mixinMatchEmitter({prototype: _proto}){
+    var matchers = [];
+    _proto.add = getAddMatcher(matchers);
+    _proto.matchFirst = getMatchFirst(matchers);
+    _proto.matchAll = getMatchAll(matchers);
 }

@@ -77,11 +77,6 @@ Proxy.prototype.ask = function() {
     this._actor.send(msg);
 }
 
-Proxy.prototype.die = function(callback){
-    var cb = callback || function(){};
-    this._actor.die(cb);
-};
-
 Proxy.prototype.on = function(event,callback){
     this._emitter.on(event,callback);
 }
@@ -99,6 +94,11 @@ Proxy.prototype.processing = function() {
 	return this._actor.message();
 }
 
+Proxy.prototype.die = function(callback){
+    var cb = callback || function(){};
+    this._actor.die(cb);
+};
+
 Proxy.prototype.getInternalActor = function(){
     return this._actor;
 }
@@ -107,8 +107,12 @@ Proxy.prototype.setInternalActor = function(actor){
     this._actor = actor;
 }
 
-Proxy.prototype.supervise = function(strategy,actor){
-    this._actor.supervise(strategy,actor);
+Proxy.prototype.supervise = function(...args){
+    this._actor.supervise(...args);
+}
+
+Proxy.prototype.onMatch = function(...args){
+    this._actor.onMatch(...args);
 }
 
 module.exports = Proxy;

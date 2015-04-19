@@ -1,6 +1,9 @@
 var Async           = require("./async"),
-    message         = require("./message"),
+    message        = require("./message"),
     r               = require('ramda');
+
+import {getAddMatcher, getMatchAll} from './MatchEmitter';
+import {Termination} from './SystemMessages';
 
 var Actor = function(config) {
     this._config = config;
@@ -26,6 +29,10 @@ var Actor = function(config) {
     this._queue = [];
 
     this._children = [];
+
+    this.matchListeners = [];
+    this.onMatch = getAddMatcher(this.matchListeners);
+    this.emitMatch = getMatchAll(this.matchListeners);
 }
 
 Actor.prototype.init = function(options) {
@@ -240,7 +247,7 @@ Actor.prototype.die = function(callback){
         callback(this._queue);
         this._queue = [];
     }
-    this._context.emit("Termination",{});
+    this.emitMatch(new Termination(this));
 }
 
 Actor.prototype.supervise = function(strategy,actor){

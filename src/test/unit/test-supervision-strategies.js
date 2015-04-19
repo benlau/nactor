@@ -1,10 +1,12 @@
 var     nactor      = require("../../lib/factory"),
-expect      = require("chai").expect,
-assert      = require('chai').assert,
-Poison      = require('../../lib/Messages').PoisonPill,
-Strategy    = require('../../lib/SupervisionStrategies'),
-resumeOn    = Strategy.resumeOn,
-stopOn      = Strategy.stopOn;
+        expect      = require("chai").expect,
+        assert      = require('chai').assert,
+        Strategy    = require('../../lib/SupervisionStrategies'),
+        resumeOn    = Strategy.resumeOn,
+        stopOn      = Strategy.stopOn;
+
+import {Termination, PoisonPill as Poison} from '../../lib/SystemMessages';
+import r from 'ramda';
 
 describe('Supervision Strategies',function(){
     it('provides a resume strategy',function(done){
@@ -66,11 +68,17 @@ describe('Supervision Strategies',function(){
             assert.fail('all exceptions raised should get caught');
         });
 
-        child.on('Termination',function(){
+
+        var internal = parent.getInternalActor();
+        child.onMatch(r.is(Termination), _ => {
+            expect(internal._children.length).to.equal(0);
             done();
         });
 
+        expect(internal._children.length).to.equal(1);
+
         child.ask('dangerous');//this should kick off the exception which ultimately gets re-thrown by parent
         child.ask('hello',function(){ assert.fail('this handler should never get called') });
+
     });
 });

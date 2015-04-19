@@ -1,7 +1,9 @@
-var Emitter     = require('../../lib/MatchEmitter').MatchEmitter,
-r           = require('ramda'),
-expect      = require("chai").expect,
-assert      = require('chai').assert;
+import r from 'ramda';
+import { expect, assert } from 'chai';
+
+import * as matchLib from '../../lib/MatchEmitter';
+var Emitter = matchLib.MatchEmitter;
+var mixer = matchLib.mixinMatchEmitter;
 
 var log = msg => console.log(msg);
 
@@ -45,4 +47,17 @@ describe('MatchEmitter',function(){
         expect(matches).to.equal(2);
     });
 
+    it('provides a function to mixin MatchEmitter into any class',function(){
+        mixer(TestMessage);
+
+        var emitter = new TestMessage();
+        var matches = 0;
+
+        emitter.add(msg => r.is(TestMessage,msg) && !r.isNil(msg.message),
+        ({message: msg}) => matches++/*log(msg)*/ );
+
+        emitter.matchFirst(new TestMessage('hi'));
+
+        expect(matches).to.equal(1);
+    });
 });

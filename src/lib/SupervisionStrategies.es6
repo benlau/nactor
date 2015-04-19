@@ -4,6 +4,7 @@ Restart the subordinate, clearing out its accumulated internal state
 Stop the subordinate permanently
 Escalate the failure, thereby failing itself
 */
+import r from 'ramda';
 
 export function resume(err,action,child,parent){
     return;
@@ -12,9 +13,11 @@ export function restart(err,action,child,parent){
     return;
 };
 export function stop(err,action,child,parent){
-    child.die();
-    //remove child from parent's tree
-    //what to do with the dead child's mailbox?
+    child.die(mailbox => {
+        /*what to do with the dead child's mailbox?*/
+        //remove child from parent's tree
+        parent._children = r.reject(r.eq(child),parent._children);
+    });
 };
 //note escalate is the default behavior anyway
 export function escalate(err,action,child,parent){
