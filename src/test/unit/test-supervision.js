@@ -1,7 +1,7 @@
 var     nactor      = require("../../lib/factory"),
         expect      = require("chai").expect,
         assert      = require('chai').assert,
-        Poison      = require('../../lib/Messages').PoisonPill;
+        Poison      = require('../../lib/SystemMessages').PoisonPill;
 
 import r from 'ramda';
 
