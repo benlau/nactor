@@ -24,4 +24,9 @@ describe('Queue',function(){
         expect(q.dequeue()).to.equal(2);
         expect(q.length).to.equal(0);
     });
+    it('returns undefined if dequeue is called when it is empty',function(){
+        let q = new Queue();
+
+        expect(q.dequeue()).to.be.undefined;
+    });
 });
