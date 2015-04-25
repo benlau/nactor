@@ -1,7 +1,7 @@
 //this should be found on both server and client
 //------ lib.js ------
 
-var log = msg => console.log(msg);
+
 export const foo = 'fizz';
 
 export const sqrt = Math.sqrt;
@@ -12,9 +12,37 @@ export function diag(x, y) {
   return sqrt(square(x) + square(y));
 }
 
-//log(foo);
+class View {
+  constructor(options) {
+    this.template = options.template;
+  }
 
-var r = require('ramda');
+  render() {
+    return this.template;
+  }
+}
+
+var v = new View({template: 'hello'});
+console.log(v.render());
+
+const r = require('ramda');
+
+const log = msg => {
+    if(r.is(Function,msg)){
+        console.log(msg());
+    }else{
+        console.log(msg);
+    }
+}
+
+import { Queue } from './Queue';
+var q = new Queue();
+console.log('queue length is ' +  q.length);
+q.enqueue(3);
+console.log('queue length is ' +  q.length);
+console.log('queue first item is ' + q.dequeue());
+
+//log(foo);
 
 export class NoMatch extends Error {
     constructor(args = [], message = undefined, fileName = undefined, lineNumber = undefined) { // ES6 features Default Parameters
@@ -75,8 +103,6 @@ matcher(msg => r.is(TestMessage,msg) && !r.isNil(msg.message),
 
 matcher(r.is(TestMessage),
         _ => log('test message isn\'t set'));
-
-
 
 matchAll(new TestMessage());
 matchFirst(new TestMessage('hi'));
