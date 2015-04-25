@@ -1,7 +1,9 @@
-import * as babel from 'babel/polyfill';
-import Enum from 'symbol-enum';
+import { Symbol } from './Symbol';
 
-export const SchedulerStates = new Enum('Stopped','Running');
+export const SchedulerStates = {
+    Stopped: Symbol('Stopped'),
+    Running: Symbol('Running')
+}
 let Stopped = SchedulerStates.Stopped;
 let Running = SchedulerStates.Running;
 

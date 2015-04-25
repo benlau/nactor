@@ -35,9 +35,7 @@
     "dev": "nodemon --ignore 'dist/**/*' -e es6,js --exec 'npm test'"
   },
   "dependencies": {
-    "babel": "^5.1.11",
     "bluebird": "^2.9.24",
-    "ramda": "^0.13.0",
-    "symbol-enum": "^2.0.1-0"
+    "ramda": "^0.13.0"
   }
 }
