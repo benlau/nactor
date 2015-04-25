@@ -1,6 +1,9 @@
-require("babel/polyfill");
+import * as babel from 'babel/polyfill';
+import Enum from 'symbol-enum';
 
-const Stopped = Symbol('Stopped');
+export const SchedulerStates = new Enum('Stopped','Running');
+let Stopped = SchedulerStates.Stopped;
+let Running = SchedulerStates.Running;
 
 export class Scheduler {
     /*getFunc::void->a
@@ -10,16 +13,16 @@ export class Scheduler {
         this.getFunc = getFunc;
         this.do = doFunc;
         this.next = nextFunc;
-        this._state = 'STOPPED';
+        this._state = Stopped;
     }
 
     start(){
-        this._state = 'RUNNING';
+        this._state = Running;
         this._tick();
     }
 
     stop(){
-        this._state = 'STOPPED';
+        this._state = Stopped;
     }
 
     processNext(){
@@ -33,10 +36,10 @@ export class Scheduler {
     }
 
     _tick(){
-        if(this._state === 'STOPPED') return;
+        if(this._state === Stopped) return;
 
         this.next(_=>{
-            if(this._state === 'STOPPED') return;
+            if(this._state === Stopped) return;
 
             this.processNext();
             this._tick();
