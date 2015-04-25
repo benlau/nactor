@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "bluebird": "^2.9.24",
-    "ramda": "^0.13.0"
+    "ramda": "^0.13.0",
+    "babel": "^5.1.11"
   }
 }

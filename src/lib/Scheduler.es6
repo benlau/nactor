@@ -1,3 +1,7 @@
+require("babel/polyfill");
+
+const Stopped = Symbol('Stopped');
+
 export class Scheduler {
     /*getFunc::void->a
     doFunc::a->void
