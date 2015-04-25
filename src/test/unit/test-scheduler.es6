@@ -1,6 +1,7 @@
 import r from 'ramda';
 import { expect, assert } from 'chai';
-import { Queue, Scheduler } from '../../lib/Queue';
+import { Queue } from '../../lib/Queue';
+import { Scheduler } from '../../lib/Scheduler';
 
 var log = msg => console.log(msg);
 
@@ -27,7 +28,7 @@ describe('Scheduler',function(done){
         s.processNext();
         expect(count).to.equal(2);
         expect(q.length).to.equal(0);
-        
+
         //if we keep on going, it just does nothing
         s.processNext();
         expect(count).to.equal(2);
