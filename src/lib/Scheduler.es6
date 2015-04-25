@@ -11,7 +11,7 @@ export class Scheduler {
 
     start(){
         this._state = 'RUNNING';
-        _tick();
+        this._tick();
     }
 
     stop(){
@@ -34,7 +34,7 @@ export class Scheduler {
         this.next(_=>{
             if(this._state === 'STOPPED') return;
 
-            processNext();
+            this.processNext();
             this._tick();
         });
     }

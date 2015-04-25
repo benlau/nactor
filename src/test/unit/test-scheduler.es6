@@ -6,6 +6,33 @@ import { Scheduler } from '../../lib/Scheduler';
 var log = msg => console.log(msg);
 
 describe('Scheduler',function(done){
+
+    it('schedules processing',function(done){
+        let q = new Queue();
+        q.enqueue(1);
+        q.enqueue(2);
+        let count = 0;
+        let s = new Scheduler(
+
+            process.nextTick,
+
+            _ => { return q.dequeue() },
+
+            num => {
+                count++;
+                if(count === 2){
+                    s.stop();
+                    expect(q.length).to.equal(0);
+                    done();
+                }else if(count > 2){
+                    assert.fail('scheduler should have stopped processing');
+                }
+            });
+
+        //if we keep on going, it just does nothing
+        s.start();
+    });
+
     it('lets user manually process next tick',function(){
         let q = new Queue();
         q.enqueue(1);
