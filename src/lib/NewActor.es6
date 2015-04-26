@@ -14,9 +14,9 @@ export const StateEnum = {
     Stopped: Symbol('Stopped')
 };
 
-const SystemMsg = Symbol('SystemMsg');
-const ChildMsg = Symbol('ChildMsg');
-const UserMsg = Symbol('UserMsg');
+export const SystemMsg = Symbol('SystemMsg');
+export const ChildMsg = Symbol('ChildMsg');
+export const UserMsg = Symbol('UserMsg');
 
 //it has/is a state machine
 export class Actor {
@@ -47,6 +47,7 @@ export class Actor {
             },
 
             (...args) => {
+
                 //for some reason, if we just call someFunc(...args), then the args get wrapped into another array
                 //that has happened already here
                 this._messageHandler.matchFirst.apply(this, args[0]);
@@ -60,7 +61,7 @@ export class Actor {
         this._messageHandler.add(
             (...args)=>{
                 return r.eq(sym, r.head(args)) &&
-                    pred(r.tail(...args));
+                    pred.apply(this, r.tail(args));
             },
             (...args) => {
                 act.apply(this, r.tail(args));
