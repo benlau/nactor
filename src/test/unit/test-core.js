@@ -1,6 +1,7 @@
 var   nactor    = require("../../lib/factory"),
       expect    = require("chai").expect;
 
+
 describe('core-tests',function(){
     it('tests processing',function(done){
         var actor = nactor.actor({

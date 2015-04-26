@@ -14,6 +14,7 @@ export function getAddMatcher(arr){
 
 export function getMatchFirst(arr){
     return (...args) => {
+
         var found = r.find(pair => pair[0](...args), arr);
         if(found !== undefined){
             return found[1](...args);

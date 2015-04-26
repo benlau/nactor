@@ -19,8 +19,10 @@ export class Scheduler {
     }
 
     start(){
-        this._state = Running;
-        this._tick();
+        if(this._state !== Running){
+            this._state = Running;
+            this._tick();
+        }
     }
 
     stop(){
@@ -33,6 +35,7 @@ export class Scheduler {
             this.do(item);
             return true;
         }else{
+            this._state = Stopped;
             return false;
         }
     }
