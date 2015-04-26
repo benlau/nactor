@@ -105,4 +105,8 @@ export class Actor {
 
         this._scheduler.start();
     }
+
+    ask(...args){
+        this.addUserMsg(...args);
+    }
 }

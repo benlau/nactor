@@ -44,7 +44,8 @@ describe('Actor',function(){
             done();
         });
 
-        kb.addUserMsg('foo');
+        //kb.addUserMsg('foo'); also works
+        kb.ask('foo');
     });
 
 });
