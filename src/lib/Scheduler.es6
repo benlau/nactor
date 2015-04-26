@@ -1,9 +1,12 @@
+'use strict';
+
 import { Symbol } from './Symbol';
 
 export const SchedulerStates = {
     Stopped: Symbol('Stopped'),
     Running: Symbol('Running')
-}
+};
+
 let Stopped = SchedulerStates.Stopped;
 let Running = SchedulerStates.Running;
 
@@ -11,7 +14,7 @@ export class Scheduler {
     /*getFunc::void->a
     doFunc::a->void
     nextFunc::(void->void)->void*/
-    constructor(nextFunc,getFunc,doFunc){
+    constructor(nextFunc, getFunc, doFunc){
         this.getFunc = getFunc;
         this.do = doFunc;
         this.next = nextFunc;
@@ -41,10 +44,10 @@ export class Scheduler {
     }
 
     _tick(){
-        if(this._state === Stopped) return;
+        if(this._state === Stopped) { return; }
 
         this.next(_=>{
-            if(this._state === Stopped) return;
+            if(this._state === Stopped) { return; }
 
             this.processNext();
             this._tick();

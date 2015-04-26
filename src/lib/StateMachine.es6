@@ -1,37 +1,40 @@
+'use strict';
+
 import r from 'ramda';
 import { MatchEmitter } from './MatchEmitter';
 import { Symbol } from './Symbol';
 
 export class StateAlreadyExists extends Error {
     constructor(strSymbol, message = undefined, fileName = undefined, lineNumber = undefined) { // ES6 features Default Parameters
-        super(message,fileName,lineNumber); //call the parent method with super
+        super(message, fileName, lineNumber); //call the parent method with super
         this.strSymbol = strSymbol;
     }
 }
 
-export function Trigger(pred,act){
-    return [pred,act];
-};
+export function Trigger(pred, act){
+    return [pred, act];
+}
 
 export function getSym(str){
     return Symbol(str);
 }
+
 export class State{
-    constructor(symStr,...triggers){
-        this.name = r.is(String,symStr) ? Symbol(symStr) : symStr;
+    constructor(symStr, ...triggers){
+        this.name = r.is(String, symStr) ? Symbol(symStr) : symStr;
         this.emitter = new MatchEmitter();
         triggers.forEach(trigger => {
             this.emitter.matchers.push(trigger);
-        })
+        });
     }
-    static make(symStr,...triggers){
-        return new State(symStr,...triggers);
+    static make(symStr, ...triggers){
+        return new State(symStr, ...triggers);
     }
 }
 
 export class StateMachine {
 
-    constructor(initialState = undefined,states = []){
+    constructor(initialState = undefined, states = []){
 
         this._matcher = new MatchEmitter();
         this._states = {};
@@ -40,7 +43,7 @@ export class StateMachine {
 
         this._state = undefined;
         if(initialState !== undefined){
-            
+
             this._state = this._states[initialState];
         }
     }
@@ -55,11 +58,9 @@ export class StateMachine {
 
     addState(states){
 
-        if(states.length < 1) return;
+        if(states.length < 1) { return; }
 
-        r.forEach
-
-        (state => {
+        r.forEach(state => {
 
             var _sym = state.name;
             var _triggers = state.emitter;
@@ -72,7 +73,7 @@ export class StateMachine {
                 this._states[_sym.description] = _sym;
             }
 
-        },states);
+        }, states);
     }
 
     trigger(...args){

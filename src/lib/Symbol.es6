@@ -1,3 +1,4 @@
+'use strict';
 export function Symbol(str = undefined){
-    return {description: str, toString: function(){ return str }};
+    return {description: str, toString: function(){ return str; }};
 }

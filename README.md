@@ -257,9 +257,16 @@ Remarks : The actor will no longer be usable after called ''action.stop()''
 Build & Dev
 -----------
 ```
+npm install -g babel
+npm install -g eslint
+npm install -g babel-eslint
 npm install -g nodemon
 npm run dev
 ```
+
+Using [babel](https://babeljs.io/) & [eslint](http://eslint.org/docs/user-guide/configuring) for linting and transpiling.
+
+[Here's a good tutorial on using eslint](https://medium.com/@dan_abramov/lint-like-it-s-2015-6987d44c5b48)
 
 Licence
 -------

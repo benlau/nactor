@@ -1,20 +1,18 @@
+'use strict';
+
 import { Symbol } from './Symbol';
 import { Queue } from './Queue';
 import { StateMachine, State, Trigger } from './StateMachine';
 import { MatchEmitter as Emitter } from './MatchEmitter';
 import { Scheduler } from './Scheduler';
 import r from 'ramda';
-//it has 3 queues
-//system
-//user
-//children
 
 export const StateEnum = {
     New: Symbol('New'),
     Starting: Symbol('Starting'),
     Running: Symbol('Running'),
     Stopped: Symbol('Stopped')
-}
+};
 
 const SystemMsg = Symbol('SystemMsg');
 const ChildMsg = Symbol('ChildMsg');
@@ -51,26 +49,26 @@ export class Actor {
             (...args) => {
                 //for some reason, if we just call someFunc(...args), then the args get wrapped into another array
                 //that has happened already here
-                this._messageHandler.matchFirst.apply(this,args[0]);
+                this._messageHandler.matchFirst.apply(this, args[0]);
             }
 
         );
 
     }
 
-    _addHandler(pred,act,sym){
+    _addHandler(pred, act, sym){
         this._messageHandler.add(
             (...args)=>{
-                return r.eq(sym,r.head(args)) &&
+                return r.eq(sym, r.head(args)) &&
                     pred(r.tail(...args));
             },
             (...args) => {
-                act.apply(this,r.tail(args));
+                act.apply(this, r.tail(args));
             });
     }
 
-    addSystemHandler(pred,act){
-        this._addHandler(pred,act,SystemMsg);
+    addSystemHandler(pred, act){
+        this._addHandler(pred, act, SystemMsg);
     }
 
     addSystemMsg(...args){
@@ -82,8 +80,8 @@ export class Actor {
         this._scheduler.start();
     }
 
-    addChildHandler(pred,act){
-        this._addHandler(pred,act,ChildMsg);
+    addChildHandler(pred, act){
+        this._addHandler(pred, act, ChildMsg);
     }
 
     addChildMsg(...args){
@@ -94,8 +92,8 @@ export class Actor {
         this._scheduler.start();
     }
 
-    addUserHandler(pred,act){
-        this._addHandler(pred,act,UserMsg);
+    addUserHandler(pred, act){
+        this._addHandler(pred, act, UserMsg);
     }
 
     addUserMsg(...args){

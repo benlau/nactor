@@ -1,6 +1,8 @@
+'use strict';
+
 export class PoisonPill extends Error {
-    constructor(message = undefined, fileName = undefined, lineNumber = undefined) { // ES6 features Default Parameters
-        super(message,fileName,lineNumber); //call the parent method with super
+    constructor(message = undefined, fileName = undefined, lineNumber = undefined) {
+        super(message, fileName, lineNumber);
     }
 }
 export class ActorTerminated {

@@ -30,7 +30,7 @@
   },
   "scripts": {
     "test-perf": "babel src --source-maps inline --out-dir dist && ./node_modules/.bin/mocha dist/test/perf --reporter spec",
-    "test": "babel src --source-maps inline --out-dir dist && ./node_modules/.bin/mocha dist/test/unit --reporter spec",
+    "test": "eslint src/**/*.es6 && babel src --source-maps inline --out-dir dist && ./node_modules/.bin/mocha dist/test/unit --reporter spec",
     "watch-perf": "nodemon --ignore 'dist/**/*' -e js --exec 'npm run test-perf'",
     "dev": "nodemon --ignore 'dist/**/*' -e es6,js --exec 'npm test'"
   },
