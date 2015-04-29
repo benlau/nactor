@@ -14,11 +14,12 @@ export class Scheduler {
     /*getFunc::void->a
     doFunc::a->void
     nextFunc::(void->void)->void*/
-    constructor(nextFunc, getFunc, doFunc){
+    constructor(getFunc, doFunc, errFunc, nextFunc){
         this.getFunc = getFunc;
         this.do = doFunc;
-        this.next = nextFunc;
+        this.next = nextFunc || (process && process.nextTick ? process.nextTick : (act)=> { setTimeout(act, 0);  });
         this._state = Stopped;
+        this._onError = errFunc;
     }
 
     start(){
@@ -35,8 +36,17 @@ export class Scheduler {
     processNext(){
         let item = this.getFunc();
         if(item !== undefined){
-            this.do(item);
-            return true;
+            try{
+                this.do(item);
+                return true;
+            }catch(err){
+                if(this._onError){
+                    this._onError(err);
+                }else{
+                    throw err;
+                }
+            }
+
         }else{
             this._state = Stopped;
             return false;

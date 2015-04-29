@@ -4,6 +4,7 @@ import { expect, assert } from 'chai';
 import * as matchLib from '../../lib/MatchEmitter';
 var Emitter = matchLib.MatchEmitter;
 var mixer = matchLib.mixinMatchEmitter;
+var InvocationError = matchLib.InvocationError;
 
 var log = msg => console.log(msg);
 
@@ -60,4 +61,26 @@ describe('MatchEmitter',function(){
 
         expect(matches).to.equal(1);
     });
+
+    it('throws an InvocationError if an exception is thrown for first match',function(){
+
+        var emitter = new Emitter();
+        var matches = 0;
+
+        emitter.add(
+            msg => r.is(TestMessage,msg) && !r.isNil(msg.message),
+            ({message: msg}) => { throw new Error('this is an intentional error'); } );
+
+        let testMessage = new TestMessage('hi');
+
+        try{
+            emitter.matchFirst(testMessage);
+        }catch(err){
+            expect(r.is(InvocationError,err)).to.equal(true);
+            expect(err.args[0]).to.equal(testMessage);
+            expect(err.innerError.message).to.equal('this is an intentional error');
+        }
+
+    });
+
 });

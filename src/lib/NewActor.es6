@@ -33,8 +33,6 @@ export class Actor {
 
         this._scheduler = new Scheduler(
 
-            process.nextTick,
-
             (...args) => {
 
                 var toReturn =
@@ -51,10 +49,15 @@ export class Actor {
                 //for some reason, if we just call someFunc(...args), then the args get wrapped into another array
                 //that has happened already here
                 this._messageHandler.matchFirst.apply(this, args[0]);
-            }
+            },
+
+            this._handleProcessingException
 
         );
 
+    }
+
+    _handleProcessingException(error, argsArray){
     }
 
     _addHandler(pred, act, sym){

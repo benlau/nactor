@@ -14,8 +14,6 @@ describe('Scheduler',function(done){
         let count = 0;
         let s = new Scheduler(
 
-            process.nextTick,
-
             _ => { return q.dequeue() },
 
             num => {
@@ -40,8 +38,6 @@ describe('Scheduler',function(done){
         let count = 0;
         let s = new Scheduler(
 
-            process.nextTick,
-
             _ => { return q.dequeue() },
 
             num => {
@@ -61,4 +57,25 @@ describe('Scheduler',function(done){
         expect(count).to.equal(2);
         expect(q.length).to.equal(0);
     });
+
+    it('will take a handler for exceptions',function(done){
+        let q = new Queue();
+        q.enqueue(1);
+        let count = 0;
+        let s = new Scheduler(
+
+            _ => { return q.dequeue() },
+
+            num => {
+                throw new Error('test error');
+            },
+
+            err => {
+                done();
+            });
+
+            //if we keep on going, it just does nothing
+            s.start();
+        });
+
 });
