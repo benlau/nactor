@@ -61,16 +61,6 @@ export class Actor {
     _handleProcessingException(error, argsArray){
     }
 
-    getPromise(){
-
-        let resolver = Promise.defer();
-
-        return {
-            promise: resolver.promise,
-            deferred: resolver
-        };
-    }
-
     _addHandler(pred, act, sym){
         this._messageHandler.add(
             (...args)=>{
@@ -95,14 +85,15 @@ export class Actor {
 
     addSystemMsg(...args){
 
+        let deferred = Promise.defer();
+
         args.unshift(this._stateMachine);
-        let { promise: toReturn, deferred: defer  } = this.getPromise();
-        args.unshift(defer);
+        args.unshift(deferred);
         args.unshift(SystemMsg);
         this._systemMessages.enqueue(args);
 
         this._scheduler.start();
-        return toReturn;
+        return deferred.promise;
     }
 
     addChildHandler(pred, act){
@@ -111,13 +102,13 @@ export class Actor {
 
     addChildMsg(...args){
 
-        let { promise: toReturn, deferred: deferred  } = this.getPromise();
+        let deferred = Promise.defer();
         args.unshift(deferred);
         args.unshift(ChildMsg);
         this._childrenMessages.enqueue(args);
 
         this._scheduler.start();
-        return toReturn;
+        return deferred.promise;
     }
 
     addUserHandler(pred, act){
@@ -126,14 +117,13 @@ export class Actor {
 
     addUserMsg(...args){
 
-        var { promise: toReturn, deferred: defer  } = this.getPromise();
-
-        args.unshift(defer);
+        let deferred = Promise.defer();
+        args.unshift(deferred);
         args.unshift(UserMsg);
         this._userMessages.enqueue(args);
 
         this._scheduler.start();
-        return toReturn;
+        return deferred.promise;
     }
 
     ask(...args){

@@ -1,3 +1,4 @@
 src/lib/test.es6
 src/lib/proxy.es6
 src/lib/actor.es6
+src/lib/match-sample.es6
