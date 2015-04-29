@@ -6,6 +6,7 @@ import { StateMachine, State, Trigger, StateAlreadyExists } from '../../lib/Stat
 var log = msg => console.log(msg);
 
 describe('Actor',function(){
+
     it('has a special channel for system messages',function(done){
         let kb = new Actor();
         let count = 0;
@@ -44,6 +45,23 @@ describe('Actor',function(){
         });
 
         kb.ask('foo');
+    });
+
+    it('returns a promise of results when a message is passed to it',function(done){
+
+        let kb = new Actor();
+        let count = 0;
+
+        kb.addUserHandler(r.always(true), msg => {
+            return 'bar';
+        });
+
+        kb.ask('foo')
+        .then(result => {
+            expect(result).to.equal('bar');
+            done();
+        });
+
     });
 
     class First {}

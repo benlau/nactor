@@ -6,6 +6,7 @@ import { StateMachine, State, Trigger } from './StateMachine';
 import { MatchEmitter as Emitter } from './MatchEmitter';
 import { Scheduler } from './Scheduler';
 import r from 'ramda';
+import Promise from 'bluebird';
 
 export const StateEnum = {
     New: Symbol('New'),
@@ -60,6 +61,16 @@ export class Actor {
     _handleProcessingException(error, argsArray){
     }
 
+    getPromise(){
+
+        let resolver = Promise.defer();
+
+        return {
+            promise: resolver.promise,
+            deferred: resolver
+        };
+    }
+
     _addHandler(pred, act, sym){
         this._messageHandler.add(
             (...args)=>{
@@ -67,7 +78,14 @@ export class Actor {
                     pred.apply(this, r.tail(args));
             },
             (...args) => {
-                act.apply(this, r.tail(args));
+                let deferred = r.head(r.tail(args));
+
+                try{
+                    let result = act.apply(this, r.tail(r.tail(args)));
+                    deferred.resolve(result);
+                }catch(err){
+                    deferred.reject(err);
+                }
             });
     }
 
@@ -78,10 +96,13 @@ export class Actor {
     addSystemMsg(...args){
 
         args.unshift(this._stateMachine);
+        let { promise: toReturn, deferred: defer  } = this.getPromise();
+        args.unshift(defer);
         args.unshift(SystemMsg);
         this._systemMessages.enqueue(args);
 
         this._scheduler.start();
+        return toReturn;
     }
 
     addChildHandler(pred, act){
@@ -90,10 +111,13 @@ export class Actor {
 
     addChildMsg(...args){
 
+        let { promise: toReturn, deferred: deferred  } = this.getPromise();
+        args.unshift(deferred);
         args.unshift(ChildMsg);
         this._childrenMessages.enqueue(args);
 
         this._scheduler.start();
+        return toReturn;
     }
 
     addUserHandler(pred, act){
@@ -102,13 +126,17 @@ export class Actor {
 
     addUserMsg(...args){
 
+        var { promise: toReturn, deferred: defer  } = this.getPromise();
+
+        args.unshift(defer);
         args.unshift(UserMsg);
         this._userMessages.enqueue(args);
 
         this._scheduler.start();
+        return toReturn;
     }
 
     ask(...args){
-        this.addUserMsg(...args);
+        return this.addUserMsg(...args);
     }
 }
