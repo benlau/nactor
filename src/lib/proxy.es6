@@ -12,14 +12,14 @@ function toArray(obj){
 }
 
 /** A proxy of the actor object.
- * 
+ *
  * User should not work on the actor directly , instead they
- * should work on the proxy object. 
- * 
+ * should work on the proxy object.
+ *
  * A proxy object clones the user defined interfaces for
  * the target actor, but all the call is async and process
- * in sequential order. 
- * 
+ * in sequential order.
+ *
  * @constructor
  */
 
@@ -30,13 +30,13 @@ var Proxy = function(actor) {
     actor.onUncaughtException(function(err,action){
         self._uncaughtExceptionHandler(err,action);
     });
-    
+
     this.system = new EventEmitter();
 }
 
 Proxy.prototype.init = function(options) {
     var iface = this._actor.init(options),
-         self = this;
+         self = this,
          args = [""];
 
     for (var api in iface) {
@@ -45,11 +45,11 @@ Proxy.prototype.init = function(options) {
             return function () {
                 var args = toArray(arguments);
                 args.unshift(method);
-                self.ask.apply(self,args);            
+                self.ask.apply(self,args);
             }
         })(api);
     }
-    
+
 }
 
 Proxy.prototype.ask = function() {
@@ -57,11 +57,11 @@ Proxy.prototype.ask = function() {
          method = "",
          params = {},
          cb;
-    
+
     if (typeof arguments[0] == "object") {
-        // The first argument is a ref object. 
+        // The first argument is a ref object.
         // Just make it compitable with "drama"
-        
+
         var i = 1;
         while (arguments[i] != undefined) { // Shfit argument
             arguments[i - 1 ] = arguments[i];
@@ -73,8 +73,8 @@ Proxy.prototype.ask = function() {
         }
     }
     var msg = message.create.apply({} , arguments);
-    
-    this._actor.send(msg);   
+
+    this._actor.send(msg);
 }
 
 Proxy.prototype.on = function(event,callback){
@@ -92,6 +92,31 @@ Proxy.prototype._uncaughtExceptionHandler = function(err,action) {
 // Experimental API
 Proxy.prototype.processing = function() {
 	return this._actor.message();
+}
+
+Proxy.prototype.die = function(callback){
+    var cb = callback || function(){};
+    this._actor.die(cb);
+};
+
+Proxy.prototype.getInternalActor = function(){
+    return this._actor;
+}
+
+Proxy.prototype.setInternalActor = function(actor){
+    this._actor = actor;
+}
+
+Proxy.prototype.supervise = function(...args){
+    this._actor.supervise(...args);
+}
+
+Proxy.prototype.onMatch = function(...args){
+    this._actor.onMatch(...args);
+}
+
+Proxy.prototype.clearAndRestart = function(...args){
+    this._actor.clearAndRestart(...args);
 }
 
 module.exports = Proxy;

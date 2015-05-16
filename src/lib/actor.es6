@@ -1,29 +1,38 @@
-var Async = require("./async"),
-    message = require("./message"),
-    EventEmitter = require('events').EventEmitter
+var Async           = require("./async"),
+    message        = require("./message"),
+    r               = require('ramda');
+
+import {getAddMatcher, getMatchAll, MatchEmitter} from './MatchEmitter';
+import {ActorTerminated, ActorRestarted} from './SystemMessages';
 
 var Actor = function(config) {
     this._config = config;
-    
+
     // The context of actor
     this._context = {};
-    
+
     // The interface of the actor
     this._iface = undefined;
-    
-    this._queue = [];
-    
+
     // The processing message
     this._message = undefined;
-    
-    // The state of the actor.
-    this._state = "IDLE";
-    
+
     // Event listner
     this._listener;
-    
+
     // System Event Emitter
     this._system;
+
+    // The state of the actor.
+    this._state = "IDLE";
+
+    this._queue = [];
+
+    this._children = [];
+
+    this.matchListeners = [];
+    this.onMatch = getAddMatcher(this.matchListeners);
+    this.emitMatch = getMatchAll(this.matchListeners);
 }
 
 Actor.prototype.init = function(options) {
@@ -32,19 +41,19 @@ Actor.prototype.init = function(options) {
    var self = this;
 
     // Add a hook to message callback
-    
+
     var hook = function(message) {
         if (message.callback) {
             var _callback = message.callback;
             message.callback = function(data) {
-                self._context.post(_callback,data);    
+                self._context.post(_callback,data);
             }
         }
     }
-        
+
    // Emit event from actor.
    this._context.emit = function(event,data) {
-        
+
         if (self._listener) {
             process.nextTick(function(){
                 self._listener(event,data);
@@ -58,36 +67,39 @@ Actor.prototype.init = function(options) {
         hook(msg);
         self.send(msg);
     }
-    
+
     this._context.next = function() {
 		var msg = message.create.apply({},arguments);
         hook(msg);
-        self.send(msg,true);		
+        self.send(msg,true);
 	}
-   
+
    this._context.actor = function(){
         // Let's context be able to locale the actor object
         return self;
    }
-  
+
    if (typeof config == "object"){
-   
+
         this._iface = config;
         for (var key in options) {
             this._context[key] = options[key];
         }
-        
+
    } else if (typeof config == "function"){
         this._iface = config.call(this._context,options);
    } else {
         throw new Error("Invalid argument");
    }
-   
+
    return this._iface;
 }
 
 Actor.prototype.send = function(msg,prepend) {
-//    console.log("Actor::send ",msg);
+    if(this._state =='DEAD'){
+        throw new Error('Attempt to send message to dead actor.');
+    }
+
 	var self = this;
     msg.onUncaughtException(function(err) {
         self.handleException(err);
@@ -101,15 +113,21 @@ Actor.prototype._enqueue = function(message,prepend){
 	} else {
 		this._queue.unshift(message);
 	}
-       
-	this.nextTick();	
+
+	this.nextTick();
 }
 
 /** Ready to schedule next tick */
 Actor.prototype.nextTick = function() {
+
+    if(this._state === 'DEAD'){
+        //dead actor exception
+        this.handleException(new Error('attempting to process messages for a dead actor'));
+    }
+
 	if (this._state != "IDLE")
 		return;
-		
+
     var self = this;
     if (self._queue.length > 0){
 		this._state = "QUEUED";
@@ -132,8 +150,6 @@ Actor.prototype.tick = function() {
     var message = this._queue.shift(),
          self = this,
          reply;
-         
-//    console.log("Actor::tick" , message);
 
     var async = new Async(function(reply){
         message.reply(reply);
@@ -141,7 +157,7 @@ Actor.prototype.tick = function() {
 
     message.async = async;
     this._message  = message;
-    
+
     message.done(function() {
         self._message = undefined;
         self._state = "IDLE";
@@ -149,11 +165,12 @@ Actor.prototype.tick = function() {
             self._emitSystem("completed",message);
         else
             self._emitSystem("disposed",message);
-        self.nextTick();        
+        self.nextTick();
     });
-    
+
     try {
         this._emitSystem("received",message);
+
 		if (typeof message.method == "function") { // Anonymous function
 			reply = message.method.call(this._context,message.params,async);
 		} else {
@@ -164,13 +181,15 @@ Actor.prototype.tick = function() {
             message.reply(reply);
         }
      } catch(err) {
-		 
         if ( this.handleException(err) ) {
-            this._state = "IDLE";
-            this.nextTick();
+
+            if(this._state !== 'DEAD'){
+                this._state = "IDLE";
+                this.nextTick();
+            }
         }
-     
-     }  
+     }
+
 }
 
 /** Get the processing message */
@@ -182,7 +201,7 @@ Actor.prototype.message = function() {
 Actor.prototype._on = function(callback){
     this._listener = callback;
 }
-    
+
 Actor.prototype._emitSystem = function(event,data){
     var self = this;
     if (self._system) {
@@ -200,9 +219,9 @@ Actor.prototype.handleException = function(err) {
             this._continue = false;
         }
     };
-    
+
     this._uncaughtExceptionHandler(err,action);
-    
+
     return action._continue;
 }
 
@@ -217,6 +236,45 @@ Actor.prototype.onUncaughtException = function(callback){
  */
 Actor.prototype._uncaughtExceptionHandler = function(err,action) {
     throw err;
+}
+
+Actor.prototype.die = function(callback){
+    this._state = 'DEAD';
+    if(callback){
+        callback(this._queue);
+        this._queue = [];
+    }
+    this.emitMatch(new ActorTerminated(this));
+}
+
+Actor.prototype.supervise = function(strategy,actor){
+    var self = this;
+
+    var _matcher = new MatchEmitter();
+    r.forEach(strat => {
+        _matcher.add(strat[0],strat[1]);
+    },strategy);
+
+    _matcher.default((err,action)=>{
+        self.handleException(err);
+    });
+
+    actor.onUncaughtException(function(err,action){
+        _matcher.matchFirst(err,action,actor,self);
+    });
+
+
+    this._children.push(actor);
+}
+
+Actor.prototype.clearAndRestart = function(){
+
+    this._state = "IDLE";
+
+    //looks like we need a hook to clear out any remaining state....
+
+    this.emitMatch(new ActorRestarted(this));
+    this.nextTick();
 }
 
 module.exports = Actor;
